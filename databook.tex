@@ -5,12 +5,16 @@
 \usepackage{csquotes} % this, together with the following line, turns plain doublequotes (") into curly quotes
 \MakeOuterQuote{"}
 
+\usepackage{color}
+
 \setcounter{tocdepth}{3}
 
 \newcommand{\newterm}[1]{\emph{#1}} % new terms when first introduced
 \newcommand{\head}[1]{\textnormal{\textbf{#1}}} % headings for tables
 \newcommand{\code}[1]{\texttt{#1}} % code snippets in text
 % need another command for a code "block" with line numbers and syntax coloring
+
+\newcommand{\todo}[1]{\textcolor{red}{TODO: #1}} % make TODO items stand out in the pdf
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% END PREAMBLE; BOOK BEGINS HERE
@@ -30,18 +34,17 @@
 
 The goal of this book is to organize lecture notes under development for a course at ASU.  The course is officially called "Business Data Warehouses and Dimensional Modeling" but I have come to believe that data warehousing is one part of a larger discipline often called \newterm{data engineering} that supports the more glamorous work of data science and analytics. 
 
-In my terminology, \newterm{data science} refers to the work of using statistics, algorithms, visualization and other techniques to develop models that describe, explain, or predict patterns in data.  It is agile, iterative work, usually carried out on a personal computer using relatively small datasets.  Once a model is built, however, it often needs to be run on a larger dataset, either in a one-time batch process or as a regular, automated system.  This requires the expertise of \newterm{data engineers} who know how to harness data streams, automate data preparation "pipelines", and implement the data scientist's models with cluster-based computing in the cloud.
+In my terminology, \newterm{data science} refers to the work of using statistics, algorithms, visualization and other techniques to develop models that describe, explain, or predict patterns in data.  It is agile, iterative work, usually carried out on a personal computer using relatively small datasets.  Once a model is built, however, it often needs to be run on a larger dataset, either in a one-time batch process or as a regular, automated system.  This requires the expertise of \newterm{data engineers} who know how to harness data streams, automate data preparation "pipelines", and implement the data scientist's models with cluster-based computing in the cloud.  
 
-The term \newterm{analytics} in my usage refers to the creation of automated, self-service systems that provide data-crunching capabilities to end users, such as reports and dashboards.  Another common term for this is \newterm{business intelligence}.  The users of these systems may be called analysts or data scientists, but the builders of these systems are data engineers, using some mix of relational databases, ETL tools, and new big data infrastructures.
+The term \newterm{analytics} in my usage refers to the creation of automated, self-service systems that provide data-crunching capabilities to end users, such as reports and dashboards.  Another common term for this is \newterm{business intelligence}.  The users of these systems may be called analysts or data scientists, but the builders of these systems are data engineers, using some mix of relational databases, ETL tools, and new big data infrastructures.  
 
-The big idea behind my approach to this course is that students should finish the semester having some comfort with data in its different forms, recognize it when they see it, and know how to transform it, apply structure to it, query it, and create applications around it, as necessary for the job.  After my class, the students will take courses in data visualization and data mining---traditional data science stuff---and I would like them to be prepared so that, when one of those professors asks them to get a dataset and prepare it in a certain way, they won't break into a sweat.
+The big idea behind my approach to this course is that students should finish the semester having some comfort with data in its different forms, recognize it when they see it, and know how to transform it, apply structure to it, query it, and create applications around it, as necessary for the job.  After my class, the students will take courses in data visualization and data mining---traditional data science stuff---and I would like them to be prepared so that, when one of those professors asks them to get a dataset and prepare it in a certain way, they won't break into a sweat.  
 
 \section*{A Data Engineering Pyramid}
 
 The traditional relational database paradigm, which other textbooks teach first, actually represents a complex data structure for complex queries, and to the modern data engineer it should represent something of an "end goal" rather than a starting point.  I propose a sort of Maslow's hierarchy of data engineering, in which we need to understand the basics of finding, storing, and transforming data, before we can engineer automated business intelligence systems built on RDBMSs.
 
-\subsection*{Data Engineering Pyramid}
-
+\subsection*{Data Engineering Pyramid} 
 \begin{enumerate}
     \item What it means to persist data on disk, and what problems a database solves. Data formats like CSV, XML, JSON.  What data looks like.  Students should be able to "munge" a small data set into a preferred format with a one-time script.
     \item How data is accessed through the Internet. Applications. Services. HTTP and REST.  Scaling up and out, distributed systems, "the cloud".  Students should be able to host data in the cloud and serve it up via a web server in a preferred format.
@@ -52,8 +55,17 @@ The traditional relational database paradigm, which other textbooks teach first,
 
 The sequence of these notes represents my pedagogical thinking and is subject to change.
 
-% TODO: HOW TO USE THE BOOK, ETC
+\todo{structure of the book, how to use it, etc}
 
+\section*{Recommended Viewing}
+\begin{itemize}
+    \item \todo{Some nice warm-up video? Maybe move "The Secret Life of Big Data" here from ch. 1 if nothing better is found.}
+\end{itemize}
+
+\section*{Recommended Reading}
+\begin{itemize}
+    \item Clark, J., \& Xu. A. (2014). "Plumbing for Philosophers: The Operations of a Data Science Team".  Proceedings of the pre-ICIS SIGDSA Workshop.
+\end{itemize}
 
 \mainmatter % page numbering restarts with "1" here
 
@@ -73,7 +85,7 @@ This chapter lays the groundwork for learning about data management by introduci
 
 Your computer is a physical machine, made of atoms and charged with electrons.  It is easy to lose sight of the artifact and think of the computer only in symbolic terms: windows, menus, programs, and so on.  One component of your computer is "memory" (or RAM) which holds---in the form of  electrical impulses---the instructions and data that your computer is currently processing.  This memory fades away when the machine is powered off.  Consequently, for you to be able to do any non-ephemeral work, the computer needs some means of saving its state or its output to \newterm{persistent storage}.  Usually this means a device like a hard disk drive (HDD), but there are other options for persistent storage such as solid-state drives (SSD), optical disks (CDs/DVDs), thumb drives, and tape drives.  Any of these devices can store files in such a way that they can be "remembered" (loaded into active memory) the next time the computer is powered up.
 
-In order to really understand "big data", we need to always keep in mind that these systems have material properties and are affected by laws of physics; they are more than just software.  The physical constraints on hard drives, processors, and networks have driven the evolution of relational databases, analytical systems, and cluster-based computing for big data. We will consider these constraints more in Chapter \ref{ch:atoms}.
+In order to really understand "big data", we need to always keep in mind that these systems have material properties and are affected by laws of physics; they are more than just software.  The physical constraints on hard drives, processors, and networks have driven the evolution of relational databases, analytical systems, and cluster-based computing for big data. We will consider these constraints more in Chapter \ref{ch:atoms}, but take a look at the videos I've recommended (at the end of this chapter) by Andrew Blum and Genevieve Bell---both are compelling talks about the unexpected and often overlooked physical and human aspects of big data and the Internet.
 
 \section{Bytes}
 
@@ -160,10 +172,27 @@ A data engineer therefore needs to know about how data is accessed and shared be
 
 In this tutorial, you will learn to use Python to write and read a data file.  Scripting languages like Python, Perl, R, and Ruby, are the "glue" that tie together the different parts of a big data pipeline.  You will be challenged to come up with a better way to structure the data with its metadata.
 
+\todo{How to install Python and get it running (i.e. set your PATH)}
+
+\todo{Provide some basic code to ask the user for inputs -- name, address, etc.}
+
+\todo{Introduce some string functions and show how to append the data to a file.}
+
+\todo{Introduce a second script that reads the file and prints the data.}
+
+\todo{Propose some challenges: How to include metadata?  How to encode the file without using certain functions?  How to allow for optional data fields?  How to structure the data for easy searching (for example, alphabetizing or creating an index?  How to sum or average?}
+
+\section*{Recommended Viewing}
+\begin{itemize}
+    \item "What is the Internet, really?", TED talk by Andrew Blum, author of "Tubes": http://youtu.be/XE\_FPEFpHt4. (Or this longer version of the talk: http://youtu.be/28hzKbcLlWg.)
+    \item "The Secret Life of Big Data", keynote talk at Supercomputing 2013 by Genevieve Bell of Intel. http://youtu.be/CNoi-XqwJnA
+\end{itemize}
+
 \section*{Recommended Reading}
 \begin{itemize}
     \item Greenspun, P.  (Accessed November 2014). SQL for Web Nerds.\\ http://philip.greenspun.com/sql/.
     \item Hoffer, J. A., Topi, H., \& Ramesh, V. (2014). Essentials of Database Management.  Pearson.
+    \item Lutz, M. (2009). Learning Python.  O'Reilly.
     \item Manoochehri, M. (2014). Data Just Right: Introduction to Large-Scale Data \& Analytics. Addison-Wesley.
 \end{itemize}
 
@@ -181,14 +210,30 @@ A discussion of the structure of files.  Binary vs text.  ASCII vs Unicode.  Pee
 Munge some data with Python: e.g., write a script to transform server logs into JSON.
 Also we could use Pig here to automate the transformations?
 
-\section*{Tutorial: Tutorial}
-\addcontentsline{toc}{section}{Tutorial: Tutorial}
+\section{The Context of Data Sharing}
+\todo{Explain some of the constraints---networks are slow, so size matters, for example.}
 
-Tutorial goes here.
+\section{Text Formats for Data Files}
+\todo{Comparison of CSV, XML, and JSON formats for modeling/storing data.}
+
+\section{New Approaches for Serialization}
+\todo{Talk about serialization techs like Avro.}
+
+\section*{Tutorial: Automating Data Transformation}
+\addcontentsline{toc}{section}{Tutorial: Automating Data Transformation}
+
+\todo{Start with some data in a complex format like HTML (web scraping maybe?) and transform it to JSON or CSV using a Python script.  Show them regular expressions and maybe unix tools like sed + grep.  Finally, show how it's even easier in Pig.  (Is it?)} 
+
+\section*{Recommended Viewing}
+\begin{itemize}
+    \item \todo{Find some good videos--perhaps about data modeling in XML vs JSON?}
+    \item \todo{Good video on Pig?  Maybe the Jurney video fits here?}
+\end{itemize}
 
 \section*{Recommended Reading}
 \begin{itemize}
-    \item 
+    \item Jurney, R. (2014).  Agile Data Science.  O'Reilly.
+    \item Manoochehri, M. (2014). Data Just Right: Introduction to Large-Scale Data \& Analytics. Addison-Wesley.
 \end{itemize}
 
 
@@ -203,16 +248,36 @@ Tutorial goes here.
 
 Talk about how to serve data up in the form of a RESTful web service API.  This requires a discussion of HTTP and the basic concepts of a web server, as well as good API design and how to make it self-documenting.  
 
-Maybe use Flask as a framework to serve data up as JSON, XML, or CSV.  Show how you can change the back-end without disrupting users of the API.  Maybe we also want a program to consume the data, for example, Excel or Tableau.
+\section{The language of the Internet}
+\todo{No, not HTML... it's HTTP!  Describe how web servers work, how browsers and servers talk to one another.}
 
-\section*{Tutorial: Tutorial}
-\addcontentsline{toc}{section}{Tutorial: Tutorial}
+\section{Communicating in Data}
+\todo{Talk about the problems of the Internet: statelessness, unreliability, etc.  Build up to REST and concepts like idempotence.}
 
-Tutorial goes here.
+\section{Designing an API}
+\todo{Discuss best practices for building a web service to make your data available; good URL structures and so on.  Maybe talk also about how to document your API with a README file.}
+
+\section*{Tutorial: A RESTful Web Service}
+\addcontentsline{toc}{section}{Tutorial: A RESTful Web Service}
+
+\todo{Introduce Flask as a minimal web server.  Create a script that provides some static data from a pre-made JSON file.  Set up a URL structure so that we have created a web service that makes sense.}
+
+\todo{Demo some software that can consume the data.  Maybe Tableau or Excel can do this?}
+
+\todo{Re-program the back-end somehow, perhaps by including our previous data transform code (so code is stored as XML and transformed by our script into JSON).  This shows that an API enables us to change the "back end" without disrupting the interface to users.}
+
+\section*{Recommended Viewing}
+\begin{itemize}
+    \item \todo{Some video on web services and REST architecture or SOA?}
+    \item \todo{Some video on good API design?}
+\end{itemize}
 
 \section*{Recommended Reading}
 \begin{itemize}
-    \item 
+    \item Grinberg, M. (2014).  Flask Web Development.  O'Reilly.
+    \item Jurney, R. (2014).  Agile Data Science.  O'Reilly.
+    \item Mahemoff, M. (2006).  Ajax Design Patterns:  Chapter 9: Web Services. (pp.161-207). O'Reilly.
+    \item \todo{Something good on API design for web services?}
 \end{itemize}
 
 
@@ -227,18 +292,40 @@ Tutorial goes here.
 
 \section*{Preview}
 
-Now we move up to the problems of scale in the internet era, which afflict single-node databases.  Talk about distributed computing and massively-parallel processing.  Explain how/why "the cloud" works.  Discuss consistency and availability trade-offs with distributed data.  Discuss the problems of networks and what they need to know about REST.
+Now we move up to the problems of scale in the internet era, which afflict single-node databases.  Talk about distributed computing and massively-parallel processing.  Explain how/why "the cloud" works.  Discuss consistency and availability trade-offs with distributed data.
 
-Set up blob storage on the cloud, perhaps with Amazon S3.
+\section{Scaling Out}
+\todo{Sum up what we saw in the previous chapter as a "single node" web service with a nice diagram.  Talk about the limitations of scaling "up" to larger and more expensive computers.  Instead, the new paradigm is scaling "out" to large clusters of cheap commodity computers.}
 
-\section*{Tutorial: Tutorial}
-\addcontentsline{toc}{section}{Tutorial: Tutorial}
+\section{Trade-offs with Clusters}
+\todo{Talk about the CAP theorem; the trade-off between consistency and availability (or response time) is an instance of the more general trade-off between "safe" and "fast".  Talk about architectural choices: sharding or replicating or both; master node or no; strong or eventual consistency; virtual machines or bare metal.}
 
-Tutorial goes here.
+\section{The Cloud}
+\todo{How the cloud evolved---mainly through Amazon's overcapacity due to seasonality (I think!)---and how it meshes so well with the distributed computing concept.  Business benefits of using the cloud for storing and serving data.  Maybe scare them a little by talking about what a chore "IT operations" can be if you do it yourself.}
+
+
+
+\section*{Tutorial: Taking our Web Service to the Cloud}
+\addcontentsline{toc}{section}{Tutorial: Taking our Web Service to the Cloud}
+
+\todo{Set up cloud accounts, perhaps AWS or Azure.}
+
+\todo{Create a computing node/instance/dyno/whatever to run our web service.  Store the file (to be transformed) in bulk storage (S3).  Show how to scale it out to multiple servers and then scale back to just one.} 
+
+\todo{Probably a good time to introduce git/github for version control and automatic pushing to the cloud.  Emphasize that it's best to use the same tools at scale that you use on the localhost.}
+
+\todo{Show how to use built-in, and third-party, analytics features to monitor our "operations".}
+
+\section*{Recommended Viewing}
+\begin{itemize}
+    \item \todo{Any good videos on CAP theorem which don't assume prior knowledge of relational databases?  Otherwise use the Martin Fowler talk on NoSQL.}
+\end{itemize}
 
 \section*{Recommended Reading}
 \begin{itemize}
-    \item 
+    \item Manoochehri, M. (2014). Data Just Right: Introduction to Large-Scale Data \& Analytics. Addison-Wesley.
+    \item Wilder, B. (2012). Cloud Architecture Patterns. O'Reilly.
+    \item \todo{Some good tutorial on AWS/Azure/Heroku or whatever we use for the cloud.}
 \end{itemize}
 
 
@@ -249,22 +336,51 @@ Tutorial goes here.
 
 
 
-\chapter{Aggregate-Oriented Databases}\label{ch:nosql}
+\chapter{A Multitude of Databases}\label{ch:nosql}
 
 \section*{Preview}
 
 Discuss the ways of structuring data in a database.  Primarily focus on comparing RDBMSs (e.g. Postgres) with document stores (e.g. Mongo).  Discuss metadata and queries.  Graph databases and others (e.g. message queues) may be mentioned briefly.  This chapter is primarily about logical data structure and doesn't talk about physical optimization.
 
-Build a little Mongo database backend for the web service we created in the previous chapter.  Enable some new types of queries based on Mongo's capabilities.
+\section{How a Database Works}
+\todo{A little bit about storage and retrieval.  Transactions.  Physical arrangement of data on disk.  How databases provide an abstraction--the logical/conceptual data model--so that users don't need to know the nitty-gritty of where and how data is stored on disk.  Queries, indexes, query optimizers.}
 
-\section*{Tutorial: Tutorial}
-\addcontentsline{toc}{section}{Tutorial: Tutorial}
+\section{Data Models}
+\todo{What are data models?  Reminding them of the difference between CSV and JSON/XML---the "flatness" of the former and "object orientation" of the latter---explain how the relational model got adopted.  It allowed "flatness" while minimizing redundancy and maximizing integrity.  Data stored in tables.  This is modeled with an E-R diagram.}
 
-Tutorial goes here.
+\todo{Impedance mismatch problem.  Relational model allows for very flexible querying of data, but is very complex.  JOINs are expensive.  In the Internet era, for many jobs, it would be better to keep the structure simple and the data aggregated together.  Hence aggregate-oriented (KV and DS) databases.}
+
+\todo{A teaser that there are other models out there, like graph databases, for later study.}
+
+\section{Databases in the Application}
+
+\todo{Databases usually run in a client-server mode.  Generally accessible by interactive shell or by GUI.  They have APIs so programs can access them.  Generally they can process scripts.  Scripts may also be a good way to do version control on them.  Processing logic may be stored in the database (stored procedures, triggers) or in the application code.  Pros and cons of the two approaches.}
+
+
+
+
+\section*{Tutorial: A MongoDB Backend}
+\addcontentsline{toc}{section}{Tutorial: A MongoDB Backend}
+
+\todo{Demonstrate MongoDB on the local computer.  It's a neat way to store, retrieve, and query data in JSON format.}
+
+\todo{Hook our Flask app (still local) to the Mongo database. Use the URL structure to generate queries. How do we get this into version control?}
+
+\todo{Add a new page to the app for "insert" queries.  Now we have a database-driven web app.  Maybe throw a little Bootstrap on top of it.}
+
+\todo{Move our project up to the cloud.  Use a script to load a boatload of data into our cloud-scale Mongo database.  Show how to shard it.}
+
+\section*{Recommended Viewing}
+\begin{itemize}
+    \item "Modern Databases" by Eric Redmond, co-author of "Seven Databases in Seven Weeks".  http://youtu.be/G7-OGEYCMxQ
+    \item The "Seven Databases Song".  http://youtu.be/bSAc56YCOaE
+    \item "Introduction to NoSQL" by Martin Fowler of Thoughtworks.\\ http://youtu.be/qI\_g07C\_Q5I
+    \item "MongoDB Schema Design: How to Think Non-Relational" by Jared Rosoff of 10gen.  http://youtu.be/PIWVFUtBV1Q
+\end{itemize}
 
 \section*{Recommended Reading}
 \begin{itemize}
-    \item 
+    \item Redmond, E., \& Wilson, J. (2012). Seven Databases in Seven Weeks.  The Pragmatic Bookshelf.
 \end{itemize}
 
 
@@ -281,18 +397,39 @@ Tutorial goes here.
 
 Focus on simple versus complex queries, and what sort of stuff a relational database enables.  Describe the types of queries that aren't easy with document stores.  Talk about how to model a database with an ER diagram, create it with SQL, and query it with SQL.
 
-Develop a tool that "shreds" some XML or JSON data into relational tables.  Perhaps this is where Pig comes in?
+\section{A Well-formed Relation}
+\todo{Talk about E. F. Codd's paper, relational algebra, and the elegance of the relational data model.  Talk about some of the tricky modeling cases: many-to-many, and so on.  A bit about normalization.  Relational databases enforce a schema, so up-front thought is important, and refactoring must be done carefully.  Perhaps this is a drawback or perhaps it is an advantage.}
 
-Write some queries of increasing complexity, demonstrating SQL's features.  Refer students to other texts for more on SQL.
+\section{SQL}
+\todo{All about the SQL language: DDL, DML, DCL.  SQL describes what you want, it's descriptive rather than imperative.  JOINS are the magic that allows very complex queries to be written very simply.  Subqueries and other tools are also powerful.}
 
-\section*{Tutorial: Tutorial}
-\addcontentsline{toc}{section}{Tutorial: Tutorial}
+\section{ACIDity}
+\todo{How relational databases rule in terms of data quality, by normalization, and integrity and consistency, via transactions.  Why you would want this for critical data like bank accounts.  Why it seems best for analytics (b/c arbitrary queries are possible).  Tease them that in the next chapter we'll explain about the need for a different model for data warehouses.}
 
-Tutorial goes here.
+\section*{Tutorial: Powerful Queries with SQL}
+\addcontentsline{toc}{section}{Tutorial: Powerful Queries with SQL}
+
+\todo{Demonstrate the limits of our MongoDB example by showing some queries that get difficult.}
+
+\todo{Design a relational database ER diagram that would enable the type of queries we want to do.}
+
+\todo{Do the "shredding" either of the original source, or straight from MongoDB, to put the data into relational tables. (Postgres?)}
+
+\todo{Do a number of queries in the interactive shell to show the power of the relational model for increasingly complex queries.  Maybe also show some transactions.}
+
+\todo{Maybe: integrate the relational database into our web app, too.}
+
+\section*{Recommended Viewing}
+\begin{itemize}
+    \item "SQL vs NoSQL: Battle of the Backends" by Ken Ashcraft and Alfred Fuller of Google.  http://youtu.be/rRoy6I4gKWU
+\end{itemize}
 
 \section*{Recommended Reading}
 \begin{itemize}
-    \item 
+    \item Ambler, S. \& Sadalage, P. (2006). Refactoring Databases: Evolutionary Database Design.  Addison-Wesley.
+    \item Greenspun, P.  (Accessed November 2014). SQL for Web Nerds.\\ http://philip.greenspun.com/sql/.
+    \item Hoffer, J. A., Topi, H., \& Ramesh, V. (2014). Essentials of Database Management.  Pearson.
+    \item Kline, K., Hunt, B., \& Kline, D. (2009).  SQL in a Nutshell.  O'Reilly.
 \end{itemize}
 
 
@@ -309,16 +446,39 @@ Tutorial goes here.
 
 Again bring up the physical components of computing and data storage systems.  Talk about performance issues with relational databases, why we normalize, and why we denormalize.  Discuss indexes.  Show how transactional systems are different from analytical systems at scale.  This leads into the design of analytical databases---dimensional modeling---based on their use cases.  Star schemas, three types of fact tables, grain, slowly changing dimensions.
 
-Create a kind of ETL process that pulls data from a 3NF database and sticks it into a dimensional model.
+\section{OLTP and OLAP}
+\todo{Talk about how JOINs work internally---Cartesian products.  Talk about table scans vs indexes and seeks.  Day-to-day operations have very different workloads than analyses in terms of queries and joins, rows and columns.  Remind them about transactions, and why it wouldn't be good to run huge queries that lock up your operational systems.  Why do we need separate data warehouses.}
 
-\section*{Tutorial: Tutorial}
-\addcontentsline{toc}{section}{Tutorial: Tutorial}
+\section{Dimensional Modeling}
+\todo{Design considerations for databases and data marts---fast processing and ease of use.  This means fewer joins, less use of codes, more redundancy because storage is cheap (and there's no updating so less risk of anomalies).  Introduce the star schema.  Grain.  Three types of fact tables.  Slowly changing dimensions.}
 
-Tutorial goes here.
+\section{Architecture for Data Warehouses}
+\todo{Kimball vs Inmon architectures---engineers vs business people?  Jurney's approach: keep the source systems, and code to derive the data.  Difficulty of doing ETL.  Need for governance if you're going to do conformed dimensions.  Enterprise data warehouse bus matrix approach. Agility.}
+
+\section{Business Intelligence}
+\todo{Following on the Agile idea---what's the business value of all this? What do users want?  Talk about fitting it to business processes and value chains.  Stress that we are creating self-service data apps.  Show the many ways they may consume data, including slice-and-dice, drill-down, and dashboards.}
+
+
+\section*{Tutorial: Designing a Data Mart}
+\addcontentsline{toc}{section}{Tutorial: Designing a Data Mart}
+
+\todo{Show how to time a query.  Run a big query, add an index, run it again and show how much better it went.  Show how the query plan changed.}
+
+\todo{Design a star schema.  First implement it with a VIEW, then show how to load it into another table.  Show how much simpler the queries have become.}
+
+\todo{Now do a "periodic snapshot" star schema.  It's little more complicated to do, and has a different grain, but look at the new queries it enables.}
+
+\todo{Use something like LOOKER to create dashboard components, then crystallize the outcomes as SQL.  As a fallback, use Tableau or Excel.}
+
+\section*{Recommended Viewing}
+\begin{itemize}
+    \item \todo{Guthy-Renker case study}
+    \item \todo{Maybe some Kimball v Inmon debate?  Or Imhoff, Devlin, somebody else big in that field.}
+\end{itemize}
 
 \section*{Recommended Reading}
 \begin{itemize}
-    \item 
+    \item \todo{Definitely something about the enterprise bus matrix and conformed dimensions.}
 \end{itemize}
 
 
@@ -335,16 +495,27 @@ Tutorial goes here.
 
 What if our queries need to span billions of pieces of data?  For example, clickstream data from web logs.  Or the entire Wikipedia corpus.  Or the entire Web.  Can't fit it in one node, and the network would become the bottleneck if you tried to process it in one node.  Discuss the Hadoop architecture and MapReduce.  Show how well it works with the cloud (e.g. Amazon S3) and fits into the data processing pipeline.
 
-Spin up a cluster on the cloud and do a simple MapReduce query (word count?) on a gigantic dataset.
+\todo{Create the section headings and write the chapter.}
 
-\section*{Tutorial: Tutorial}
-\addcontentsline{toc}{section}{Tutorial: Tutorial}
+\section*{Tutorial: Hadoop and Hive}
+\addcontentsline{toc}{section}{Tutorial: Hadoop and Hive}
 
-Tutorial goes here.
+\todo{Set up a Hadoop cluster and do a simple M/R job like word count.}
+
+\todo{Do something a little more complex and useful, maybe using For example, Python and \code{mrjobs}.}
+
+\todo{Show how Hive or one of its competitors can be used to transform SQL-like queries into MapReduce jobs.}
+
+\section*{Recommended Viewing}
+\begin{itemize}
+    \item "Learn MapReduce with Playing Cards" by Jesse Anderson.\\  http://youtu.be/bcjSe0xCHbE
+    \item \todo{More videos on Hadoop and M/R.}
+\end{itemize}
 
 \section*{Recommended Reading}
 \begin{itemize}
-    \item 
+    \item Manoochehri, M. (2014). Data Just Right: Introduction to Large-Scale Data \& Analytics. Addison-Wesley.
+    \item \todo{more}
 \end{itemize}
 
 
@@ -360,16 +531,21 @@ Tutorial goes here.
 
 Setting up a data pipeline with data coming in via "streams" and being transformed, either in regular batches or continuous, to automate the preparation, analysis, and delivery of data.  Talk about message queues, using Redis or Amazon Kinesis or the like, and asynchronicity.
 
-Set up a flow of data from a stream (perhaps Twitter) into storage, transforming and loading into an analytical database, into a dashboard.
+\todo{Create the section headings and write the chapter.}
 
-\section*{Tutorial: Tutorial}
-\addcontentsline{toc}{section}{Tutorial: Tutorial}
+\section*{Tutorial: Integrating Live Data Streams}
+\addcontentsline{toc}{section}{Tutorial: Integrating Live Data Streams}
 
-Tutorial goes here.
+\todo{Set up a flow of data from a stream (perhaps Twitter) into storage, transforming and loading into an analytical database, into a dashboard.}
+
+\section*{Recommended Viewing}
+\begin{itemize}
+    \item \todo{Perhaps a version of that AWS talk about kinesis?}
+\end{itemize}
 
 \section*{Recommended Reading}
 \begin{itemize}
-    \item 
+    \item \todo{Perhaps that "Event Processing" book?}
 \end{itemize}
 
 
@@ -383,14 +559,19 @@ Tutorial goes here.
 
 \section*{Preview}
 
-Talk about design considerations for self-service analytics systems, and what's the data engineer's role.  Contrast periodic reporting with real-time systems.  Here we might talk about architectures for business intelligence, and review a business case study.  The focus is on the types of questions they might ask.  Close the loop by connecting source systems with dimensional databases with BI applications.
+Talk about design considerations for self-service analytics systems, and what's the data engineer's role.  Contrast periodic reporting with real-time systems.  Here we might talk about architectures for business intelligence, and review a business case study.  The focus is on the types of questions they might ask.  Close the loop by connecting source systems with dimensional databases with BI applications.  Also talk about integrating the "discovery" and "productization" functions.  Goal is not "reports" but rather "applications" -- products that provide answers in a self service way.  Jurney's idea of "value the document over the relation"; how can we do document-oriented BI?
 
-Develop a dashboard using Tableau or some other software (Pentaho?).  Take stock of how we got here from there.
+\todo{Create section headings and complete the chapter.}
 
-\section*{Tutorial: Tutorial}
-\addcontentsline{toc}{section}{Tutorial: Tutorial}
+\section*{Tutorial: A Self-Service B.I. Portal}
+\addcontentsline{toc}{section}{Tutorial: A Self-Service B.I. Portal}
 
-Tutorial goes here.
+\todo{Complete our application by building a "portal" which should provide access to (a) the aggregate-oriented queries we enabled in Mongo, (b) data discovery tools in Looker or Tableau looking at our data mart, and (c) pre-made dashboards based on our streaming data.}
+
+\section*{Recommended Viewing}
+\begin{itemize}
+    \item "Agile Analytics Applications" by Russell Jurney, author of "Agile Data Science": http://youtu.be/woZdwluR3GM
+\end{itemize}
 
 \section*{Recommended Reading}
 \begin{itemize}
@@ -407,49 +588,14 @@ Tutorial goes here.
 
 
 
-\chapter{TBD: Beyond Hadoop}
+%\chapter{TBD: Beyond Hadoop}
+%\todo{this chapter might look at Spark, Storm, and other discovery-oriented variations on Hadoop}
 
-\section*{Preview}
+%\chapter{TBD: Columnar Databases for Big Queries}
+%\todo{a continuation of the analytical databases chapter, it might look at HBase and others like it, how they go beyond the base RDBMS technology}
 
-Examine some variations on the Hadoop idea, such as Spark and Storm and Hive.  How can we produce more sophisticated MapReduce jobs but keep them understandable and maintainable.  For example, Python and \code{mrjobs}.
-
-Show how Hive or one of its competitors can be used to transform SQL-like queries into MapReduce jobs.
-
-\section*{Tutorial: Tutorial}
-\addcontentsline{toc}{section}{Tutorial: Tutorial}
-
-Tutorial goes here.
-
-\section*{Recommended Reading}
-\begin{itemize}
-    \item 
-\end{itemize}
-
-
-
-
-
-
-
-
-\chapter{TBD: Columnar Databases for Big Queries}
-
-\section*{Preview}
-
-Discuss columnar databases as solutions for big, big data warehousing type systems.  They have the power to crunch lots of rows but are structured for convenient self-service.
-
-Use HBase or google BigQuery with some gigantic dataset and throw a dashboard (Tableau?) on top of it.
-
-\section*{Tutorial: Tutorial}
-\addcontentsline{toc}{section}{Tutorial: Tutorial}
-
-Tutorial goes here.
-
-\section*{Recommended Reading}
-\begin{itemize}
-    \item 
-\end{itemize}
-
+%\chapter{TBD: Graph Databases}
+%\todo{this might be a fun chapter if i can figure out a good reason for students to need to learn it!}
 
 
 
@@ -468,8 +614,9 @@ Tutorial goes here.
 \chapter*{Epilogue}
 \addcontentsline{toc}{chapter}{Epilogue}
 
-Here review the options that were introduced, what was left out, and what decisions and trade-offs were seen.  Perhaps there is some neat framework for decision making that can tie the earlier chapters together.
+\todo{Here review the options that were introduced, what was left out, and what decisions and trade-offs were seen.  Perhaps there is some neat framework for decision making that can tie the earlier chapters together.}
 
+\todo{Add an index, maybe a glossary.}
 
 
 \end{document}
