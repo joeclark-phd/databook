@@ -5,3 +5,6 @@ These are my course notes (under development) for CIS 355, "Business Data Wareho
 
 Feel free to use this for education and training purposes, as long as you give me credit.
 
+## Backlog
+
+[![Stories in Ready](https://badge.waffle.io/joeclark-phd/databook.svg?label=ready&title=Ready)](http://waffle.io/joeclark-phd/databook)
