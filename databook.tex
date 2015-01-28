@@ -172,23 +172,92 @@ A data engineer therefore needs to know about how data is accessed and shared be
 
 In this tutorial, you will learn to use Python to write and read a data file.  Scripting languages like Python, Perl, R, and Ruby, are the "glue" that tie together the different parts of a big data pipeline.  You will be challenged to come up with a better way to structure the data with its metadata.
 
-\todo{How to install Python and get it running (i.e. set your PATH)}
+\subsection*{Installing Python}
 
-\todo{Provide some basic code to ask the user for inputs -- name, address, etc.}
+The Python programming language is available for Windows, Mac OS, and Linux systems, from http://www.python.org.  At the time of this writing, two versions of Python are current: Python 2.7.9 and Python 3.4.2.  The code in this book is compatible with this or later versions of Python 3, but should work with any version of Python 2 as well with very few exceptions.  For most systems, Python is an easy download from the website and an automatic install.
 
-\todo{Introduce some string functions and show how to append the data to a file.}
+To follow the tutorials in this book, you need to be able to use the command line interface for your computer.  On a Mac or Linux computer this is called "Terminal".  On a Windows PC you can type "cmd" in the Start menu to access a command prompt.\footnote{In class, I will tend to use a Unix-style command line interface on a Windows computer.  I recommend Git Bash, which is a free accessory when you install the version control software Git from http://git-scm.com.}  At your command prompt (represented here by the \code{\$}), type:\\
 
-\todo{Introduce a second script that reads the file and prints the data.}
+\code{\$ python}\\
 
-\todo{Propose some challenges: How to include metadata?  How to encode the file without using certain functions?  How to allow for optional data fields?  How to structure the data for easy searching (for example, alphabetizing or creating an index?  How to sum or average?}
+This should tell you what version of Python you have installed, and then begin the Python interpreter.\footnote{If it does not, then you will need to set your operating system's \code{PATH} variable, so that it knows where Python is stored.  Search the Internet, or ask for help.}  Here the prompt is different (probably \code{>>>}) and you can enter lines of Python code rather than operating system commands.  Try the following:\\
+
+\code{>>> print('hello world')}\\
+
+\todo{The single quotes should not be "curly" quote marks.  I will fix.}\\
+
+The interpreter should process this line of code---your first Python program!---and the words 'hello world' will appear on the line below it.
+
+At any time you can type \code{quit()} to exit the Python interpreter and return to the operating system.
+
+
+\subsection*{Writing a Python program}
+
+A computer program in its most basic form is simply a list of instructions for the computer to follow.  The interactive Python interpreter we've just used is great for testing things out or doing one-time calculations, but it will not be the main tool we use for writing programs.  The reason is simple: every time we want to repeat the instructions, we need to re-type them.  If your program is simply \code{print('hello world')} then this is feasible, but if you need 20 or 100 lines of code, it would be better to write them once and be able to re-run them.
+
+You will therefore need a \newterm{text editor}, a software program for working with plain text files.\footnote{This does \emph{not} include word processors like Microsoft Word.}  Your computer probably has a built-in text editor such as Notepad on a Windows system, but I recommend you select one that is meant for programming.  Notepad++, TextWrangler, and Sublime are very popular.  They assist programmers by, for example, indicating line numbers, and using colors to make program structure easier to read.
+
+In your chosen text editor, create a file containing the code below:\\
+
+\todo{Display this as a code file with line numbers and no indentation.}
+
+\code{print('Hello world')\\
+print('2+2 is', 2+2)\\
+input('Press ENTER to continue...')}\\
+
+Save the file as \code{hello.py}.  The "\code{.py}" extension to the filename tells Python and other programs that this is a Python program.  To run the program, navigate to the folder/directory where you saved the file, and type the following:\\
+
+\code{\$ python hello.py}\\
+
+The program will run, print some sentences to the terminal, and ask you to press [Enter].  Once you do, you'll be returned to the command prompt (\code{\$}).  You are now set up to write any Python programs you want, and run them.  If this doesn't work, you may need help to set your \code{PATH} or solve some other problems.  In some cases, your system may be set up so that you can simply double-click on \code{hello.py} from the GUI instead of using the command line.  Beware that without the final line of code above, this may run the program but close the window so quickly you cannot see it run.
+
+\subsection*{Writing some data to a file}
+
+In our next program, we're going to write some data to a file in the \newterm{CSV} (comma-separated values) format.  This is one way of organizing some data to share it with others.  Its limitations will be considered in the next chapter.  Within the code, I will use \emph{comments}.  These lines, beginning with \code{\#}, are ignored by Python, so we use them to provide explanations for other people who may have to maintain or use our code.
+
+Call this file \code{writefile.py}:\\
+
+\todo{Insert writefile.py code.  Currently on GitHub}\\
+
+Run it once, and you will see that a new file called \code{datafile.csv} has appeared in the folder/directory where you are working.  You can run the script any number of times and it will re-create the same file.  The way we opened the output file, with the "w" code, deletes the existing file and creates a new one every time it is run.
+
+\subsection*{A very simple data entry system}
+
+Now let's expand on this program to allow interactive data entry.  In \code{dataentry.py}, we use a \code{while} loop to ask for data until such time as the user leaves the name field blank (by pressing Enter twice).  The condition \code{True} is always true, so the loop repeats itself infinitely until the \code{break} is executed.  Note that in Python, the block of code within the loop is indicated by indentation, so you must indent each line after \code{while} the same way, and stop indenting when you come to the line containing \code{f.close()}.
+
+\todo{Insert dataentry.py code.  Currently on GitHub}\\
+
+Were you able to follow everything that was going on in the code?  Python is a good language for learning to program, because it is closer than others to plain English.  If you are struggling, you may want to search the Internet for help with the keywords \code{while} and \code{if}.  Don't be shy about asking for help!
+
+\subsection*{A system to read the data}
+
+You have stored your data in an organized way, using a commonly-known format (CSV).  It even has a little bit of metadata---the first line contains headers that tell us the names of the fields in each row: name, age, and sex.  With \code{readdata.py}, we design a system to read the data and describe what the metadata says about it.  It will print this to the screen.
+
+Note that we use the same command, \code{open}, to open the CSV file, but this time with the code "\code{r}" for "read".  Each line of the file is \code{strip}ped of its newline character and then \code{split} into a list of three items.  In Python, as in most programming languages, the items in a list are accessed by number beginning with zero.  So \code{headers[0]} is the first item in the list of headers, \code{headers[2]} is the third item, and so on.  In this program, we use a \code{for} loop instead of a \code{while} loop; this is another very common structure.
+
+\todo{Insert readdata.py code.  Currently on GitHub}\\
+
+This simple program cannot be said to truly "understand" the data, but it does make as much use of the metadata as possible, printing it to the screen and informing the user of how each piece of data is labeled.  Congratulations!  You've now developed software systems for gathering data, saving it to disk in an organized way, and reading the data back from storage.  The rest of the course will expand on this foundation.
+
+\subsection*{Challenges}
+
+\begin{enumerate}
+    \item The program \code{readdata.py} can read any number of rows but only three columns of data (because that's how many we used in \code{dataentry.py}). Can you alter it to handle any arbitrary number of columns?
+    \item After doing the above, can you now extend \code{dataentry.py} to allow the user to input any number of columns?  It should probably ask for the column labels first, and then begin regular data entry as before.
+    \item Our data entry program did no validation on the data that was entered, just accepted whatever the user typed.  How could a user enter bad data that would crash our program.  More interestingly... how might a clever user enter data that would trick the system without crashing it?
+    \item We read the CSV file line by line (i.e. row by row) and printed out the three variables in a row together.  How could we read, or process, all the variables in a \emph{column} together?  For example, how might we compute a sum or average of all values in the "AGE" column?
+    \item CSV is a great format for tabular data in which each row has the same number of columns, but what if your data doesn't fit that criterion?  For example, what if we wanted to add cars, or pets, or children's names to each row of data.  There could be zero, one, or any number of these for each row.  Design a data format that would allow us to store such data, and still incorporate metadata that tells us what it is.  Can you write a script to produce your data file?  Can you write a script to read it?  What limitations does your new data file have?
+\end{enumerate}
 
 \section*{Recommended Viewing}
+\addcontentsline{toc}{section}{Recommended Viewing}
 \begin{itemize}
     \item "What is the Internet, really?", TED talk by Andrew Blum, author of "Tubes": http://youtu.be/XE\_FPEFpHt4. (Or this longer version of the talk: http://youtu.be/28hzKbcLlWg.)
     \item "The Secret Life of Big Data", keynote talk at Supercomputing 2013 by Genevieve Bell of Intel. http://youtu.be/CNoi-XqwJnA
 \end{itemize}
 
 \section*{Recommended Reading}
+\addcontentsline{toc}{section}{Recommended Reading}
 \begin{itemize}
     \item Greenspun, P.  (Accessed November 2014). SQL for Web Nerds.\\ http://philip.greenspun.com/sql/.
     \item Hoffer, J. A., Topi, H., \& Ramesh, V. (2014). Essentials of Database Management.  Pearson.
