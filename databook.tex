@@ -275,9 +275,11 @@ This simple program cannot be said to truly "understand" the data, but it does m
 
 \section*{Preview}
 
-A discussion of the structure of files.  Binary vs text.  ASCII vs Unicode.  Peek into the structure of a Word or Excel file and compare it to some other formats.  Contrast CSV, XML, JSON.  Show alternative methods of serialization, such as Avro.
+Dear Students:  please use chapter 2 of the textbook ("Data Just Right" by M. Manoochehri) until I have time to write this chapter!
+
+\todo{A discussion of the structure of files.  Binary vs text.  ASCII vs Unicode.  Peek into the structure of a Word or Excel file and compare it to some other formats.  Contrast CSV, XML, JSON.  Show alternative methods of serialization, such as Avro.
 Munge some data with Python: e.g., write a script to transform server logs into JSON.
-Also we could use Pig here to automate the transformations?
+Also we could use Pig here to automate the transformations?}
 
 \section{The Context of Data Sharing}
 \todo{Explain some of the constraints---networks are slow, so size matters, for example.}
@@ -311,17 +313,112 @@ Also we could use Pig here to automate the transformations?
 
 
 
+
+
+
+
+
 \chapter{Opening Your Data to the World}
 
 \section*{Preview}
 
-Talk about how to serve data up in the form of a RESTful web service API.  This requires a discussion of HTTP and the basic concepts of a web server, as well as good API design and how to make it self-documenting.  
+This chapter introduces the HTTP protocol and its implications for communicating with data through the Internet.  I discuss the challenges of statelessness and unreliability, safe and unsafe HTTP methods, and show how a RESTful architecture enables us to cope with them.  This leads into a section on API design, and a tutorial in which we use Python and Flask to create a RESTful web service to share our data.
 
 \section{The language of the Internet}
-\todo{No, not HTML... it's HTTP!  Describe how web servers work, how browsers and servers talk to one another.}
+
+Many courses on databases or data management begin by assuming that you have certain software available on a certain type of computer, and proceed to tell you how to use it.  On the contrary, we will assume that at some point you are going to have to communicate data over the Internet, whether you are providing data \emph{to} others, collecting it \emph{from} others, or both.  You will want them to be able to build applications\footnote{I don't like the word "apps"but you can use it if you like.} that interact with your systems, but you cannot know exactly what software they will use, and they won't be able to directly access whatever database system you're using.  The Internet itself determines some limitations on how you can communicate in data.
+
+The language of the Internet which we are concerned with is the HyperText Transfer Protocol, \newterm{HTTP}.  What it means to call it a "protocol" is that HTTP defines a structure for messages to be sent between clients and servers.  It is not a programming language, or a specification for the underlying networking technologies.\footnote{Networking is a huge topic, including aspects of hardware and software, beyond the scope of these notes.  Assume that the infrastructure exists for sending messages between computers.  What HTTP does is tell us how to structure those messages so the machine on the other end knows how to read them.}  Instead, HTTP gives us a formula for how to write a data message so that the person or computer on the other end of the line will know how to read it.  HTTP was invented around 1990 by Tim Berners-Lee and his team along with HTML, the web server, and the first web browser---together creating the World Wide Web.
+
+Two types of messages in HTTP are requests and responses.  Typically, a client (such as your web browser) sends a request to a server (such as ASU's web server) and the server sends back a response (such as a web page, image, or PDF).
+
+\todo{A diagram of the request/response process.}
+
+Every HTTP message has an initial line, which is different for requests and responses, optional "headers" (which are metadata about the message), and then the optional main body of the message, which may be any type of data.  In the message body you can send text data like HTML (a web page), XML, or JSON, or you can send binary data like pictures in PNG format, documents in DOC or PDF format, and more.
+
+\todo{Illustration of typical request message}
+
+The initial line for an HTTP request includes a method, a URL\footnote{URL stands for "Uniform Resource Locator" and is the address of the resource (such as a file) that you are requesting.}, and the HTTP version, for example:
+
+\code{GET /path/to/file/index.html HTTP/1.1}
+
+The most common method you use when browsing the web is \code{GET}, which simply says, "send me this resource", and doesn't change data or have other side effects on the server.  You sometimes use \code{POST} for submitting forms, commenting on blogs and so forth---this is a method that adds data to the server.  You might use \code{PUT} when uploading files such as photos, and there are several other methods that are used from time to time.
+
+The initial line for a response from a server includes the HTTP version, a response code, and an English "reason phrase", for example:
+
+\code{HTTP/1.0 200 OK}
+
+or
+
+\code{HTTP/1.0 404 Not Found}
+
+Most communication on the internet occurs in this pattern of requests and responses.  The requests often include metadata ("headers") which may identify the person who made the request and the browser version he is using.  Response headers may include the date of the response, and if there is a message body such as a web page, will tell you the type of data to expect, and its length.  Several other headers may be useful to us in building systems to communicate data over the Internet, and I will discuss them below.
 
 \section{Communicating in Data}
-\todo{Talk about the problems of the Internet: statelessness, unreliability, etc.  Build up to REST and concepts like idempotence.}
+
+One problem we face in sharing data over the Internet is that the networks are unreliable.  Sometimes a message will not reach its intended recipient.  In other cases, the response may be delayed and the requester may repeat his request, so the server receives the same message twice.  These kinds of problems can have severe side effects---think of a credit card being charged twice for one purchase---and in designing for data communications over the Internet we need to consider them.
+
+Another problem is that communication via HTTP is \newterm{stateless}.  If I make two requests to a web server, the server doesn't automatically know that the two requests came from the same person, or whether they were part of the same "session".  This makes it difficult to know if a person is "logged in" when they are trying to access sensitive data, and it complicates the implementation of something you see on a lot of web sites: a "next page" or "more results" button.  If the server doesn't remember what I searched for, or which page of results I saw last, it won't know which data is "next".
+
+Many solutions have been used to overcome these and other problems in the design of web applications.  Some simple solutions are easy to imagine, but they have the feeling of rowing a boat upstream---they fight against the nature of the Internet rather than adapting to it.  For example:
+
+\begin{itemize}
+    \item session ID and page number in URL
+    \item cookies to ID users and sessions
+    \item timestamp to prevent duplicate POSTs
+    \item \todo{more detail}
+\end{itemize}
+
+\section{REST to the Rescue}
+A more mature solution to the Internet's challenges is found in the Representational State Transfer or \newterm{REST} architecture, first proposed by Roy Fielding in a dissertation at U.C. Irvine in 2000.  Instead of fighting against the characteristics of HTTP and the Internet, this architecture is designed to take advantage of them.
+
+According to a white paper by IBM's Alex Rodriguez, a modern implementation of REST architecture for a web service follows four basic design principles:
+
+\begin{itemize}
+    \item Use directory-structure-like URLs mapped to resources.
+    \item Map HTTP methods to CRUD functions.
+    \item Design your applications to be stateless.
+    \item Communicate in XML, JSON, or both.
+\end{itemize}
+
+The first of these principles requires that we think of our data as "resources" to be accessed, rather than programs to access them, and use URLs that seem to be addresses to those resources.  The old, non-RESTful\footnote{RESTless?} way to implement comments on a blog (to give an example), might be to write a piece of code called \code{comment.php} and the URL to read the comments might be:
+
+\code{http://www.myblog.com/comment.php?post=42\&action=read}
+
+The RESTful way to address the comments for this article would be to use a URL like the following:
+
+\code{http://www.myblog.com/articles/42/comments}
+
+This implies that there is a folder or directory called "articles", and a folder for article \#42 within it, and a folder of "comments" within that.  On the server side, these folders need not actually exist, but the server should be programmed to receive a URL that looks like a folder structure and respond with the proper data.  The simulated folder structure has a couple of benefits.  First, it hides the details of how the site is programmed, and this means we could change the programming without changing the URL structure.  Second, and more importantly, it allows our consumers to use the HTTP methods directly on the data (aka "resources") that they want, instead of indirectly on scripts.
+
+The RESTful architecture maps the four main HTTP methods \code{POST}, \code{GET}, \code{PUT}, and \code{DELETE} to the four "CRUD" operations which are used in almost any application that operates on data.  See Table \ref{tab:httpcrud}.  CRUD stands for Create, Read, Update, and Delete.  It is almost universal that we will want to add new data to our system, read the data we have stored, change existing data, and remove data from storage.  Consider the contacts list on your phone---a simple database.  You need to be able to add new contacts, browse them to find one you want to call, update them when friends get new phone numbers, and delete the old ones you never used.
+
+\begin{table}
+\centering
+\caption{Mapping of HTTP methods to CRUD operations}\label{tab:httpcrud}
+\vspace{10pt}
+\begin{tabular}{ccp{5cm}}
+    \toprule[1.5pt]
+    \head{HTTP method} & \head{CRUD operation} & \head{Meaning} \\
+    \midrule
+    \code{GET} & Read & Fetch data without altering it.\\
+    \midrule
+    \code{POST} & Create & Add this new data to the resource, creating the resource if it doesn't yet exist.\\
+    \midrule
+    \code{PUT} & Update & Replace the existing resource with this (newer) data, creating it if it doesn't yet exist.\\
+    \midrule
+    \code{DELETE} & Delete & Remove this resource.\\
+    \bottomrule[1.5pt]
+\end{tabular}
+\end{table}
+ 
+Allowing our users (humans as well as software applications) to directly access data resources also helps us to achieve statelessness, and to mitigate some of the risks inherent in unreliable networks.  Of the four main HTTP methods, one (\code{GET}) is "safe" meaning that by design it has no side effects on the server.\footnote{Except harmless ones like logs of web traffic, advertisements served, and so on.}  Two of the other methods (\code{PUT} and \code{DELETE}) are \newterm{idempotent}, meaning that they have the same effect---and no unintended side effects---whether they are executed once, twice, or a dozen times.  There can still beside effects when using the \code{POST} method, such as adding the same blog comment twice, but we are at least removing the problems that occurred in the past when \code{GET} and \code{POST} were used for \emph{everything} instead of only the operations proper to them.
+
+Finally, web services must communicate in a standard data interchange format, usually JSON or XML, although the other formats discussed in the previous chapter may also be good candidates for the reasons stated there.
+
+In sum, if we want people to be able to access our data over the Internet, we need to make it available via the HTTP methods, using sensible URLs that correspond to the data resources themselves.  We need to receive requests in standard data formats, and send responses in standard data formats.  If we are merely sharing our data, we can start by implementing the \code{GET} method.  The other HTTP methods are available if we want to create a truly interactive data application.
+
+If we adhere to these principles, we gain a great deal of freedom!  Since our URLs refer to resources rather than to pieces of code, we're free to use any technology we want to code our application, and to change it at any time without disrupting our users.  Since our application is stateless and most of its methods are safe or idempotent, we can use cluster computing, caching, and other tricks on the back end to improve performance.  (More on that in the next chapter.)  By designing the RESTful interface or API \emph{first} and then coding the implementation, we save a lot of time in programming, testing, and supporting customers.
 
 \section{Designing an API}
 \todo{Discuss best practices for building a web service to make your data available; good URL structures and so on.  Maybe talk also about how to document your API with a README file.}
@@ -343,6 +440,7 @@ Talk about how to serve data up in the form of a RESTful web service API.  This 
 
 \section*{Recommended Reading}
 \begin{itemize}
+    \item Marshall, J. (2012).  HTTP Made Really Easy: A Practical Guide to Writing Clients and Servers.  http://www.jmarshall.com/easy/http/
     \item Grinberg, M. (2014).  Flask Web Development.  O'Reilly.
     \item Jurney, R. (2014).  Agile Data Science.  O'Reilly.
     \item Mahemoff, M. (2006).  Ajax Design Patterns:  Chapter 9: Web Services. (pp.161-207). O'Reilly.
