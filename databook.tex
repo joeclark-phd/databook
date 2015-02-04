@@ -421,7 +421,36 @@ In sum, if we want people to be able to access our data over the Internet, we ne
 If we adhere to these principles, we gain a great deal of freedom!  Since our URLs refer to resources rather than to pieces of code, we're free to use any technology we want to code our application, and to change it at any time without disrupting our users.  Since our application is stateless and most of its methods are safe or idempotent, we can use cluster computing, caching, and other tricks on the back end to improve performance.  (More on that in the next chapter.)  By designing the RESTful interface or API \emph{first} and then coding the implementation, we save a lot of time in programming, testing, and supporting customers.
 
 \section{Designing an API}
-\todo{Discuss best practices for building a web service to make your data available; good URL structures and so on.  Maybe talk also about how to document your API with a README file.}
+Good API design begins with pencil and paper.  An API can be thought of as a contract between you (the developer and owner of a data product) and your consumers (the people and products that will use your data).  You are agreeing to make certain resources accessible in prescribed ways, and if you change the API unexpectedly, you may cause headaches for your consumers as their products and their businesses stop working.  So let's first think about API design from the point of view of the consumer---what might he need from your data?
+
+Imagine, for example, that your application is a Twitter-like microblog.  The API should have a ULR endpoint for each \newterm{entity} in the microblog's universe.  These "entities" are its nouns; some are individual objects: users, messages, hashtags, etc., and others are \newterm{collections}, such as the set of all messages posted by a certain user.  Your API should provide a way to access both objects and collections, and it should use the four main HTTP methods in the correct way, as its verbs.
+
+An initial sketch of the API documentation might include the following:\\
+
+\code{GET /users}: List all users of the system (usernames and real names)
+
+\code{POST /users}: Create a new user
+
+\code{GET /users/\{username\}}: Retrieve all data about the specified user
+
+\code{GET /users/\{username\}/posts}: Retrieve all posts by this user
+
+\code{DELETE /users/\{username\}}: Delete the specified user account\\
+
+And similar methods would be documented for URL endpoints for messages, hashtags, and other data in the application.  After the API endpoints, which correspond to resources, your API may provide a number of optional parameters to filter the response.  For example, instead of all messages, your user may only want the last 10, or only want messages posted during the last month.  In a URL, these parameters follow a \code{?} and are separated by \code{\&}.  For example:\\
+
+\code{GET /messages?limit=10}: Retrieve the last 10 messages.
+
+\code{GET /messages?limit=10\&offset=10}: Retrieve 10 messages \emph{after} the first 10 (in other words, retrieve "page 2" of messages).
+
+\code{GET /messages?month=January\&year=2015}: Retrieve all messages from January 2015.
+
+Some other good practices in setting up your API are to choose a good URL root.  You could use something like \code{http://www.mysite.com/api/*} (the \code{*} is where your consumers put the  specified URL endpoints), or you could use \code{http://api.mysite.com/*}.  You may also want to include a version number, so that if you change the API, consumers can still use the old version.  For example: \code{http://api.mysite.com/v1/*}.
+
+Your API should also be well-documented so that your users don't have to figure it out for themselves.  Where should you put this documentation?  A good choice might be to put it in the form of a web page at the root URL, so that anyone with access to the API also has access to the documentation.  Be sure to include sample URLs, as many people find it easier to modify the sample than to build their own from scratch.
+
+For more on API design, see Recommended Reading below.
+
 
 \section*{Tutorial: A RESTful Web Service}
 \addcontentsline{toc}{section}{Tutorial: A RESTful Web Service}
@@ -443,6 +472,7 @@ If we adhere to these principles, we gain a great deal of freedom!  Since our UR
     \item Marshall, J. (2012).  HTTP Made Really Easy: A Practical Guide to Writing Clients and Servers.  http://www.jmarshall.com/easy/http/
     \item Fielding, R. (2000). Architectural Styles and the Design of Network-based Software Architectures. [Dissertation]. Chapter 5: Representational State Transfer (REST). http://www.ics.uci.edu/\~{}fielding/pubs/ dissertation/rest\_arch\_style.htm
     \item Rodriguez, A. (2008). RESTful Web Services: The basics.  IBM developerWorks. http://www.ibm.com/developerworks/library/ws-restful/ws-restful-pdf.pdf
+    \item Hunter, T. (2014). Consumer-Centric API Design. [e-book]. https://github.com/tlhunter/consumer-centric-api-design
     \item Grinberg, M. (2014).  Flask Web Development.  O'Reilly.
 \end{itemize}
 
