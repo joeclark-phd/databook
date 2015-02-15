@@ -1,0 +1,16 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGborland{c}{\PYGborlandZsh{} open a new file in \PYGborlandZdq{}write\PYGborlandZdq{} mode}
+\PYGborland{n}{f} \PYGborland{o}{=} \PYGborland{n+nb}{open}\PYGborland{p}{(}\PYGborland{l+s}{\PYGborlandZdq{}datafile.csv\PYGborlandZdq{}}\PYGborland{p}{,} \PYGborland{l+s}{\PYGborlandZdq{}w\PYGborlandZdq{}}\PYGborland{p}{)}
+
+\PYGborland{c}{\PYGborlandZsh{} write headings, then some data}
+\PYGborland{c}{\PYGborlandZsh{} separated by the newline symbol \PYGborlandZbs{}n}
+\PYGborland{c}{\PYGborlandZsh{} which is like pressing Enter}
+\PYGborland{n}{f}\PYGborland{o}{.}\PYGborland{n}{write}\PYGborland{p}{(}\PYGborland{l+s}{\PYGborlandZdq{}NAME,AGE,SEX}\PYGborland{l+s+se}{\PYGborlandZbs{}n}\PYGborland{l+s}{\PYGborlandZdq{}}\PYGborland{p}{)}
+\PYGborland{n}{f}\PYGborland{o}{.}\PYGborland{n}{write}\PYGborland{p}{(}\PYGborland{l+s}{\PYGborlandZdq{}Robert,37,M}\PYGborland{l+s+se}{\PYGborlandZbs{}n}\PYGborland{l+s}{\PYGborlandZdq{}}\PYGborland{p}{)}
+\PYGborland{n}{f}\PYGborland{o}{.}\PYGborland{n}{write}\PYGborland{p}{(}\PYGborland{l+s}{\PYGborlandZdq{}Kelly,29,F}\PYGborland{l+s+se}{\PYGborlandZbs{}n}\PYGborland{l+s}{\PYGborlandZdq{}}\PYGborland{p}{)}
+
+\PYGborland{c}{\PYGborlandZsh{} finish writing the file}
+\PYGborland{n}{f}\PYGborland{o}{.}\PYGborland{n}{close}\PYGborland{p}{()}
+
+\PYGborland{n+nb}{input}\PYGborland{p}{(}\PYGborland{l+s}{\PYGborlandZsq{}Press ENTER to continue...\PYGborlandZsq{}}\PYGborland{p}{)}
+\end{Verbatim}

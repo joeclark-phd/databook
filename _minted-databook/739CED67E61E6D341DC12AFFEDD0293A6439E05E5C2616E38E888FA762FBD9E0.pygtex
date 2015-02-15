@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGmurphy{k}{print}\PYGmurphy{p}{(}\PYGmurphy{l+s}{\PYGmurphyZsq{}Hello world\PYGmurphyZsq{}}\PYGmurphy{p}{)}
+\PYGmurphy{k}{print}\PYGmurphy{p}{(}\PYGmurphy{l+s}{\PYGmurphyZsq{}2+2 is\PYGmurphyZsq{}}\PYGmurphy{p}{,} \PYGmurphy{l+m+mi}{2}\PYGmurphy{o}{+}\PYGmurphy{l+m+mi}{2}\PYGmurphy{p}{)}
+\PYGmurphy{n+nb}{input}\PYGmurphy{p}{(}\PYGmurphy{l+s}{\PYGmurphyZsq{}Press ENTER to continue...\PYGmurphyZsq{}}\PYGmurphy{p}{)}
+\end{Verbatim}

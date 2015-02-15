@@ -1,26 +1,47 @@
 \documentclass[11pt]{book}
 
+\usepackage{upquote} % cancels default behavior to make single quote look like curly single quote in texttt or verbatim environments
+
 \usepackage{microtype} % as i understand it, this adds some subtleties for even prettier typography
+
+\usepackage{ellipsis} % supposed to make \ldots look better, must come after hyperref if that is used
+
 \usepackage{booktabs} % supposed to make tables look nicer
+
 \usepackage{csquotes} % this, together with the following line, turns plain doublequotes (") into curly quotes
 \MakeOuterQuote{"}
+
+\usepackage{hyperref} % makes the PDF have hyperlinks and a TOC
 
 \usepackage{color}
 
 \setcounter{tocdepth}{3}
 
+\usepackage{minted} % for code blocks; requires that you run pdflatex with the -shell-escape option
+%%% definitions used by 'minted' to format code blocks
+\usemintedstyle{borland}
+%\setminted{bgcolor=blue}
+\setminted{frame=single,linenos,xleftmargin=24pt}
+\setminted[pycon]{frame=none,linenos=false}
+\setminted[shell]{frame=none,linenos=false}
+
+\newminted{py}{linenos} % use \begin{pycode} for python code blocks
+\newmintinline{py}{}
+%%%
+
 \newcommand{\newterm}[1]{\emph{#1}} % new terms when first introduced
 \newcommand{\head}[1]{\textnormal{\textbf{#1}}} % headings for tables
 \newcommand{\code}[1]{\texttt{#1}} % code snippets in text
-% need another command for a code "block" with line numbers and syntax coloring
-
 \newcommand{\todo}[1]{\textcolor{red}{TODO: #1}} % make TODO items stand out in the pdf
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% END PREAMBLE; BOOK BEGINS HERE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
+
+
 \frontmatter % page numbering starts here with "i"
 \title{Plumbing the Big Data Pipeline}
 
@@ -167,57 +188,88 @@ In the age of big data, a new role is emerging which takes a larger view of the 
 
 A data engineer therefore needs to know about how data is accessed and shared between users and applications over networks and in computer clusters.  He needs to know about the different types of data models and which tasks they are best suited for.  He needs to know about the new challenges of "big data" and the tools and techniques that are being developed to work with it.  And finally he needs to integrate a variety of data management solutions into a data "pipeline", automate it, and maintain it.  The remainder of this book surveys each of these knowledge areas.
 
-\section*{Tutorial: Data Munging with Python}
-\addcontentsline{toc}{section}{Tutorial: Data Munging with Python}
+\section*{Tutorial: Reading and Writing Data with Python}
+\addcontentsline{toc}{section}{Tutorial: Reading and Writing Data with Python}
 
 In this tutorial, you will learn to use Python to write and read a data file.  Scripting languages like Python, Perl, R, and Ruby, are the "glue" that tie together the different parts of a big data pipeline.  You will be challenged to come up with a better way to structure the data with its metadata.
 
-\subsection*{Installing Python}
+\subsection*{Setting Up Python}
 
-The Python programming language is available for Windows, Mac OS, and Linux systems, from http://www.python.org.  At the time of this writing, two versions of Python are current: Python 2.7.9 and Python 3.4.2.  The code in this book is compatible with this or later versions of Python 3, but should work with any version of Python 2 as well with very few exceptions.  For most systems, Python is an easy download from the website and an automatic install.
+The Python programming language is available for Windows, Mac OS, and Linux systems, from \url{http://www.python.org}.  At the time of this writing, two versions of Python are current: Python 2.7.9 and Python 3.4.2.  The code in this book is compatible with this or later versions of Python 3, but should work with any version of Python 2 as well with very few exceptions.  For most systems, Python is an easy download from the website and an automatic install.  Just follow the instructions given by the installer.
 
-To follow the tutorials in this book, you need to be able to use the command line interface for your computer.  On a Mac or Linux computer this is called "Terminal".  On a Windows PC you can type "cmd" in the Start menu to access a command prompt.\footnote{In class, I will tend to use a Unix-style command line interface on a Windows computer.  I recommend Git Bash, which is a free accessory when you install the version control software Git from http://git-scm.com.}  At your command prompt (represented here by the \code{\$}), type:\\
+To follow the tutorials in this book, you need to be able to use a command line interface to your operating system.  On a Mac or Linux computer the command line is called "Terminal".  On a Windows PC, there are multiple options: you can type "cmd" in the Start menu to access the classic Windows command prompt, or you can use a modern one called Powershell, or you can use a Unix-style terminal such as Cygwin.
 
-\code{\$ python}\\
+In my teaching, I will use a Unix-style command line interface on a Windows computer.  That way, all students using Mac, Windows, or Linux computers should be able to follow along.  The one I use is called Git Bash, and it is a free accessory when you install the version control software Git from \url{http://git-scm.com}.  I recommend you (Windows users) do the same.
 
-This should tell you what version of Python you have installed, and then begin the Python interpreter.\footnote{If it does not, then you will need to set your operating system's \code{PATH} variable, so that it knows where Python is stored.  Search the Internet, or ask for help.}  Here the prompt is different (probably \code{>>>}) and you can enter lines of Python code rather than operating system commands.  Try the following:\\
+When you run Git Bash, you will see some welcome and help messages, followed by a \newterm{prompt} such as:\\
 
-\code{>>> print('hello world')}\\
+\begin{minted}{bash}
+yourname@YOURCOMPUTER ~
+$ _
+\end{minted}
 
-\todo{The single quotes should not be "curly" quote marks.  I will fix.}\\
+
+The prompt gives us some useful information.  It tells us who is logged in, and what directory/folder you're currently working in (the \verb|~| is an abbreviation for the user's home directory).  The prompt is customizable, and will probably appear differently to users on Mac and Linux systems.  From here on out, in my examples I will simply use \verb|$| to represent the command prompt.  To execute a command, type it at the prompt and press Enter.  Some of the commands you can try are \code{ls} (list files in the directory) and \code{cd Documents} (change to the "My Documents" folder on Windows).
+
+Now, let's see if your computer is set up to use Python.  At the prompt (represented here by the \code{\$}), type:
+
+\mint{shell}|$ python|
+
+If you got an error, first: did you type the \verb|$|?  You weren't supposed to type that!  The \verb|$| is just my stand-in for the command prompt which will be different on every student's computer.  You should have typed the word \verb|python| only, and then hit Enter.
+
+If that's not the problem, then you might have gotten an error saying \verb|"python not found"| or something similar.  To fix this, you need to update your operating system's \verb|PATH| variable.  This is a setting that tells the computer where, when someone enters a command, to look for the program the user indicated.  For a Windows user, Python 3.4 will be installed in the directory \verb|C:\Python34\| and some other necessary scripts will be in \verb|C:\Python34\Scripts\|.  You'll need to find your existing \verb|PATH| and add those two directories at the end of it.  Instructions for Windows users can be found here: \url{http://www.computerhope.com/issues/ch000549.htm}.  On a Macintosh I'm not quite sure where Python will be installed by default, but some instructions for setting the \verb|PATH| are found here: \url{http://www.tech-recipes.com/rx/2621/os_x_change_path_environment_variable/}.  You'll want to close your terminal and open a new one after changing the \verb|PATH|.
+
+If everything goes well, the next time you enter the \verb|python| command, the Python interpreter will open.  It will tell you the version of python you are running, and give you a new prompt, probably \verb|>>>|.  At this prompt, you can enter lines of Python code, but you cannot enter operating system commands.  Try entering the following at the prompt.  (Don't enter the \verb|>>>|!)
+
+\mint{pycon}|>>> print('hello world')|
 
 The interpreter should process this line of code---your first Python program!---and the words 'hello world' will appear on the line below it.
 
-At any time you can type \code{quit()} to exit the Python interpreter and return to the operating system.
+At any time you can type \code{quit()} to exit the Python interpreter and return to the operating system prompt.
 
 
 \subsection*{Writing a Python program}
 
-A computer program in its most basic form is simply a list of instructions for the computer to follow.  The interactive Python interpreter we've just used is great for testing things out or doing one-time calculations, but it will not be the main tool we use for writing programs.  The reason is simple: every time we want to repeat the instructions, we need to re-type them.  If your program is simply \code{print('hello world')} then this is feasible, but if you need 20 or 100 lines of code, it would be better to write them once and be able to re-run them.
+A computer program in its most basic form is simply a list of instructions for the computer to follow.  The interactive Python interpreter we've just used is great for testing things out or doing one-time calculations, but it will not be the main tool we use for writing programs.  The reason is simple: every time we want to repeat the instructions, we need to re-type them.  If your program is simply \pyinline|print('hello world')| then this is feasible, but if you need 20 or 100 lines of code, it would be better to write them once and be able to re-run them.
 
-You will therefore need a \newterm{text editor}, a software program for working with plain text files.\footnote{This does \emph{not} include word processors like Microsoft Word.}  Your computer probably has a built-in text editor such as Notepad on a Windows system, but I recommend you select one that is meant for programming.  Notepad++, TextWrangler, and Sublime are very popular.  They assist programmers by, for example, indicating line numbers, and using colors to make program structure easier to read.
+You will therefore need a \newterm{text editor}, a software program for working with plain text files.\footnote{This does \emph{not} include word processors like Microsoft Word. They save their data in proprietary formats that are encoded for fonts, layouts, etc, and do not simply store unadorned plain text.}  Your computer probably has a built-in text editor such as Notepad on a Windows system, but I recommend you select one that is meant for programming.  Notepad++ (on Windows), TextWrangler (on Mac OS), and Sublime (on either platform) are very popular.  They assist programmers by, for example, indicating line numbers, and using colors to make program structure easier to read.
 
-In your chosen text editor, create a file containing the code below:\\
+In your chosen text editor, create a file containing the code below:
 
-\todo{Display this as a code file with line numbers and no indentation.}
+\begin{pycode}
+print('Hello world')
+print('2+2 is', 2+2)
+input('Press ENTER to continue...')
+\end{pycode}
 
-\code{print('Hello world')\\
-print('2+2 is', 2+2)\\
-input('Press ENTER to continue...')}\\
+Save the file as \code{hello.py}.  The "\verb|.py|" extension to the filename tells Python and other programs that this is a Python program.  Be careful that your text editor doesn't automatically add a "\verb|.txt|" extension instead.  To run your new program, navigate to the folder/directory where you saved the file, and type the following:
 
-Save the file as \code{hello.py}.  The "\code{.py}" extension to the filename tells Python and other programs that this is a Python program.  To run the program, navigate to the folder/directory where you saved the file, and type the following:\\
+\mint{shell}|$ python hello.py|
 
-\code{\$ python hello.py}\\
-
-The program will run, print some sentences to the terminal, and ask you to press [Enter].  Once you do, you'll be returned to the command prompt (\code{\$}).  You are now set up to write any Python programs you want, and run them.  If this doesn't work, you may need help to set your \code{PATH} or solve some other problems.  In some cases, your system may be set up so that you can simply double-click on \code{hello.py} from the GUI instead of using the command line.  Beware that without the final line of code above, this may run the program but close the window so quickly you cannot see it run.
+The program will run, print some sentences to the terminal, and ask you to press Enter.  Once you do, you'll be returned to the command prompt (\code{\$}).  You are now set up to write any Python programs you want, and run them.  If this doesn't work, you may still need practice using the command prompt, or may need help to set your \verb|PATH| correctly.  Also, make sure you're at the operating system command line (\verb|$|) and not inside the Python interpreter (\verb|>>>|) when you enter \verb|python hello.py|.
 
 \subsection*{Writing some data to a file}
 
-In our next program, we're going to write some data to a file in the \newterm{CSV} (comma-separated values) format.  This is one way of organizing some data to share it with others.  Its limitations will be considered in the next chapter.  Within the code, I will use \emph{comments}.  These lines, beginning with \code{\#}, are ignored by Python, so we use them to provide explanations for other people who may have to maintain or use our code.
+In our next program, we're going to write some data to a file in the \newterm{CSV} (comma-separated values) format.  This is one way of organizing some data to share it with others.  Its limitations will be considered in the next chapter.  Within the code, I will use \emph{comments}.  These lines, beginning with \verb|#|, are ignored by Python, so we use them to provide explanations for other people who may have to maintain or use our code.
 
-Call this file \code{writefile.py}:\\
+Call this file \code{writefile.py}:
 
-\todo{Insert writefile.py code.  Currently on GitHub}\\
+\begin{pycode}
+# open a new file in "write" mode
+f = open("datafile.csv", "w")
+
+# write headings, then some data
+# separated by the newline symbol \n
+# which is like pressing Enter
+f.write("NAME,AGE,SEX\n")
+f.write("Robert,37,M\n")
+f.write("Kelly,29,F\n") 
+
+# finish writing the file
+f.close()
+
+input('Press ENTER to continue...')
+\end{pycode}
 
 Run it once, and you will see that a new file called \code{datafile.csv} has appeared in the folder/directory where you are working.  You can run the script any number of times and it will re-create the same file.  The way we opened the output file, with the "w" code, deletes the existing file and creates a new one every time it is run.
 
@@ -225,9 +277,24 @@ Run it once, and you will see that a new file called \code{datafile.csv} has app
 
 Now let's expand on this program to allow interactive data entry.  In \code{dataentry.py}, we use a \code{while} loop to ask for data until such time as the user leaves the name field blank (by pressing Enter twice).  The condition \code{True} is always true, so the loop repeats itself infinitely until the \code{break} is executed.  Note that in Python, the block of code within the loop is indicated by indentation, so you must indent each line after \code{while} the same way, and stop indenting when you come to the line containing \code{f.close()}.
 
-\todo{Insert dataentry.py code.  Currently on GitHub}\\
+\begin{pycode}
+f = open("datafile.csv", "w")
+f.write("NAME,AGE,SEX\n")
 
-Were you able to follow everything that was going on in the code?  Python is a good language for learning to program, because it is closer than others to plain English.  If you are struggling, you may want to search the Internet for help with the keywords \code{while} and \code{if}.  Don't be shy about asking for help!
+while True: 
+    # True is always true; loop will run until we 'break'
+    name = input("Name (or ENTER to quit): ")
+    if name == "": break # end the loop if no name given
+    age = input("Age: ")
+    sex = input("Sex: ")
+    # write one line of data to the file "f"
+    f.write( name + "," + str(age) + "," + sex + "\n" )
+
+# finish writing the file
+f.close()
+\end{pycode}
+
+Were you able to follow everything that was going on in the code?  Python is pretty close to English, so sometimes you can just guess.  If you are struggling, you may want to search the Internet for help with the keywords \code{while} and \code{if}.  Don't be shy about asking for help!
 
 \subsection*{A system to read the data}
 
@@ -235,7 +302,32 @@ You have stored your data in an organized way, using a commonly-known format (CS
 
 Note that we use the same command, \code{open}, to open the CSV file, but this time with the code "\code{r}" for "read".  Each line of the file is \code{strip}ped of its newline character and then \code{split} into a list of three items.  In Python, as in most programming languages, the items in a list are accessed by number beginning with zero.  So \code{headers[0]} is the first item in the list of headers, \code{headers[2]} is the third item, and so on.  In this program, we use a \code{for} loop instead of a \code{while} loop; this is another very common structure.
 
-\todo{Insert readdata.py code.  Currently on GitHub}\\
+\begin{pycode}
+print("Accessing data file...\n")
+
+f = open("datafile.csv", "r")  # code "r" means "read"
+
+# Ingest the whole first line.
+# .strip() removes the "\n" character
+# .split(",") turns the items into a list
+headers = f.readline().strip().split(",")
+
+# for each remaining line in the file, do this:
+for line in f.readlines():
+    line = line.strip().split(",")
+
+    # headers and line are lists. we access their items
+    # with numerical indexes, counting from zero
+    
+    print(headers[0],"is",line[0])
+    print(headers[1],"is",line[1])
+    print(headers[2],"is",line[2],"\n")
+
+# finish reading the file
+f.close()
+
+input('Press ENTER to continue...')
+\end{pycode}
 
 This simple program cannot be said to truly "understand" the data, but it does make as much use of the metadata as possible, printing it to the screen and informing the user of how each piece of data is labeled.  Congratulations!  You've now developed software systems for gathering data, saving it to disk in an organized way, and reading the data back from storage.  The rest of the course will expand on this foundation.
 

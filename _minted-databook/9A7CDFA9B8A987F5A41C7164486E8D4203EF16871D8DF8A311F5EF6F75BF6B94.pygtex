@@ -1,0 +1,26 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGborland{k}{print}\PYGborland{p}{(}\PYGborland{l+s}{\PYGborlandZdq{}Accessing data file...}\PYGborland{l+s+se}{\PYGborlandZbs{}n}\PYGborland{l+s}{\PYGborlandZdq{}}\PYGborland{p}{)}
+
+\PYGborland{n}{f} \PYGborland{o}{=} \PYGborland{n+nb}{open}\PYGborland{p}{(}\PYGborland{l+s}{\PYGborlandZdq{}datafile.csv\PYGborlandZdq{}}\PYGborland{p}{,} \PYGborland{l+s}{\PYGborlandZdq{}r\PYGborlandZdq{}}\PYGborland{p}{)}  \PYGborland{c}{\PYGborlandZsh{} code \PYGborlandZdq{}r\PYGborlandZdq{} means \PYGborlandZdq{}read\PYGborlandZdq{}}
+
+\PYGborland{c}{\PYGborlandZsh{} Ingest the whole first line.}
+\PYGborland{c}{\PYGborlandZsh{} .strip() removes the \PYGborlandZdq{}\PYGborlandZbs{}n\PYGborlandZdq{} character}
+\PYGborland{c}{\PYGborlandZsh{} .split(\PYGborlandZdq{},\PYGborlandZdq{}) turns the items into a list}
+\PYGborland{n}{headers} \PYGborland{o}{=} \PYGborland{n}{f}\PYGborland{o}{.}\PYGborland{n}{readline}\PYGborland{p}{()}\PYGborland{o}{.}\PYGborland{n}{strip}\PYGborland{p}{()}\PYGborland{o}{.}\PYGborland{n}{split}\PYGborland{p}{(}\PYGborland{l+s}{\PYGborlandZdq{},\PYGborlandZdq{}}\PYGborland{p}{)}
+
+\PYGborland{c}{\PYGborlandZsh{} for each remaining line in the file, do this:}
+\PYGborland{k}{for} \PYGborland{n}{line} \PYGborland{o+ow}{in} \PYGborland{n}{f}\PYGborland{o}{.}\PYGborland{n}{readlines}\PYGborland{p}{():}
+    \PYGborland{n}{line} \PYGborland{o}{=} \PYGborland{n}{line}\PYGborland{o}{.}\PYGborland{n}{strip}\PYGborland{p}{()}\PYGborland{o}{.}\PYGborland{n}{split}\PYGborland{p}{(}\PYGborland{l+s}{\PYGborlandZdq{},\PYGborlandZdq{}}\PYGborland{p}{)}
+
+    \PYGborland{c}{\PYGborlandZsh{} headers and line are lists. we access their items}
+    \PYGborland{c}{\PYGborlandZsh{} with numerical indexes, counting from zero}
+
+    \PYGborland{k}{print}\PYGborland{p}{(}\PYGborland{n}{headers}\PYGborland{p}{[}\PYGborland{l+m+mi}{0}\PYGborland{p}{],}\PYGborland{l+s}{\PYGborlandZdq{}is\PYGborlandZdq{}}\PYGborland{p}{,}\PYGborland{n}{line}\PYGborland{p}{[}\PYGborland{l+m+mi}{0}\PYGborland{p}{])}
+    \PYGborland{k}{print}\PYGborland{p}{(}\PYGborland{n}{headers}\PYGborland{p}{[}\PYGborland{l+m+mi}{1}\PYGborland{p}{],}\PYGborland{l+s}{\PYGborlandZdq{}is\PYGborlandZdq{}}\PYGborland{p}{,}\PYGborland{n}{line}\PYGborland{p}{[}\PYGborland{l+m+mi}{1}\PYGborland{p}{])}
+    \PYGborland{k}{print}\PYGborland{p}{(}\PYGborland{n}{headers}\PYGborland{p}{[}\PYGborland{l+m+mi}{2}\PYGborland{p}{],}\PYGborland{l+s}{\PYGborlandZdq{}is\PYGborlandZdq{}}\PYGborland{p}{,}\PYGborland{n}{line}\PYGborland{p}{[}\PYGborland{l+m+mi}{2}\PYGborland{p}{],}\PYGborland{l+s}{\PYGborlandZdq{}}\PYGborland{l+s+se}{\PYGborlandZbs{}n}\PYGborland{l+s}{\PYGborlandZdq{}}\PYGborland{p}{)}
+
+\PYGborland{c}{\PYGborlandZsh{} finish reading the file}
+\PYGborland{n}{f}\PYGborland{o}{.}\PYGborland{n}{close}\PYGborland{p}{()}
+
+\PYGborland{n+nb}{input}\PYGborland{p}{(}\PYGborland{l+s}{\PYGborlandZsq{}Press ENTER to continue...\PYGborlandZsq{}}\PYGborland{p}{)}
+\end{Verbatim}
