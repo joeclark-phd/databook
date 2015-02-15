@@ -1,5 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYGborland{k}{print}\PYGborland{p}{(}\PYGborland{l+s}{\PYGborlandZsq{}Hello world\PYGborlandZsq{}}\PYGborland{p}{)}
-\PYGborland{k}{print}\PYGborland{p}{(}\PYGborland{l+s}{\PYGborlandZsq{}2+2 is\PYGborlandZsq{}}\PYGborland{p}{,} \PYGborland{l+m+mi}{2}\PYGborland{o}{+}\PYGborland{l+m+mi}{2}\PYGborland{p}{)}
-\PYGborland{n+nb}{input}\PYGborland{p}{(}\PYGborland{l+s}{\PYGborlandZsq{}Press ENTER to continue...\PYGborlandZsq{}}\PYGborland{p}{)}
-\end{Verbatim}
