@@ -1,21 +1,19 @@
 \documentclass[11pt]{book}
 
 \usepackage{upquote} % cancels default behavior to make single quote look like curly single quote in texttt or verbatim environments
-
 \usepackage{microtype} % as i understand it, this adds some subtleties for even prettier typography
-
 \usepackage{ellipsis} % supposed to make \ldots look better, must come after hyperref if that is used
-
 \usepackage{booktabs} % supposed to make tables look nicer
 
 \usepackage{csquotes} % this, together with the following line, turns plain doublequotes (") into curly quotes
 \MakeOuterQuote{"}
 
 \usepackage{hyperref} % makes the PDF have hyperlinks and a TOC
-
 \usepackage{color}
-
 \setcounter{tocdepth}{3}
+
+\usepackage{fancyvrb}
+\DefineShortVerb{\|} % now we can use |text| instead of \verb|text|
 
 \usepackage{minted} % for code blocks; requires that you run pdflatex with the -shell-escape option
 %%% definitions used by 'minted' to format code blocks
@@ -30,7 +28,6 @@
 
 \newcommand{\term}[1]{\emph{#1}} % new terms when first introduced
 \newcommand{\head}[1]{\textnormal{\textbf{#1}}} % headings for tables
-\newcommand{\code}[1]{\texttt{#1}} % code snippets in text
 \newcommand{\todo}[1]{\textcolor{red}{TODO: #1}} % make TODO items stand out in the pdf
 
 
@@ -133,7 +130,7 @@ Logically (now we are back in the realm of symbols), any persistent storage devi
 
 The bits and bytes on your disk would simply be electronic gibberish if your operating system didn't know how to read them.  Fortunately, these bytes are structured according to a \term{file system} so your operating system (e.g. Windows, Mac OS, or Linux) can read them and interpret the data as \term{files}.  A file is just a chunk of bytes on disk that is given a name and a place in the structure of folders or directories.  In this sense, programs like Microsoft Excel are files, and so are the spreadsheet documents they allow you to create.  The former are files that contain instructions for the computer, and the latter are data files that contain program output.  More commonly, we use the word "files" to refer to the latter type only, the data files.
 
-Files (in the second sense) are created by software programs, or by humans using those programs.  You can write a simple program in any programming language that reads a file or writes to a file.  Excel, for example, writes a \code{.xlsx} file and knows how to read a file of that type.  You can invent your own way of encoding data in the files that your program reads and writes.  So who sets the standards about data formats?  Anyone can, but Microsoft's standards are a lot more likely to be taken seriously by the market!  If they change the way they save a spreadsheet file, you can bet that other companies will quickly update their software to be able to read the new file format. 
+Files (in the second sense) are created by software programs, or by humans using those programs.  You can write a simple program in any programming language that reads a file or writes to a file.  Excel, for example, writes a |.xlsx| file and knows how to read a file of that type.  You can invent your own way of encoding data in the files that your program reads and writes.  So who sets the standards about data formats?  Anyone can, but Microsoft's standards are a lot more likely to be taken seriously by the market!  If they change the way they save a spreadsheet file, you can bet that other companies will quickly update their software to be able to read the new file format. 
 
 Files are very versatile.  They can big or small, can encode text, images, sound, video, and other types of data.  You can transfer them from one disk to another, e-mail them to colleagues, and share them on the Internet.  But if this was the end of the story, we'd quickly run into some problems.
 
@@ -171,9 +168,9 @@ A database is defined by Oxford as "a structured set of data held in a computer,
 
 What you get with any kind of database is a software system specifically designed to keep track of data \emph{and its meaning and structure} somewhat independently of other programs, and prepared to receive new data from, or provide access to stored data to, multiple users at the same time with different needs.  At a minimum, a database is a software system that stores data along with metadata and has some kind of API\footnote{application programming interface} by which users can create, read, update, and delete\footnote{known as the "CRUD" operations} data.
 
-The term \term{metadata} is often defined as "data about data" although I think "information about data" is more accurate.  What it means is that, instead of just storing the data, the database can also inform its users about what the data is.  If the data is \code{4809650024}, the metadata may be \code{Professor Clark's phone number}.  There are many types of databases and therefore many types of metadata---we will explore these more beginning in chapter \ref{ch:nosql}---but the point is that users of a database can make some sense of the data without knowing the process or program that created it.  Consider the analyst in my example, who wants to use the historical order data but was not familiar with the order entry process.  If the data were stored in some kind of database, he could use the metadata as a guide to know which number was sales, which was returns, and so on.
+The term \term{metadata} is often defined as "data about data" although I think "information about data" is more accurate.  What it means is that, instead of just storing the data, the database can also inform its users about what the data is.  If the data is |4809650024|, the metadata may be |Professor Clark's phone number|.  There are many types of databases and therefore many types of metadata---we will explore these more beginning in chapter \ref{ch:nosql}---but the point is that users of a database can make some sense of the data without knowing the process or program that created it.  Consider the analyst in my example, who wants to use the historical order data but was not familiar with the order entry process.  If the data were stored in some kind of database, he could use the metadata as a guide to know which number was sales, which was returns, and so on.
 
-In addition to metadata, databases also need to present an interface to humans (and generally also to other software programs) by which they can access the data.  For the past few decades, the best-known such interface is the structured query language SQL.\footnote{The name of SQL may be pronounced "sequel" or "ess, queue, ell"}.  SQL has four main commands: \code{INSERT}, \code{UPDATE}, and \code{DELETE}, which are used to manipulate data in the database, and \code{SELECT}, which is used to \term{query} the database, in other words, to request data for some purpose.  Dialects of SQL with minor differences are used by most of the long-established database brands on the market---Oracle, IBM DB2, Microsoft SQL Server, PostgreSQL, MySQL, etc---so it has the benefit of being an industry standard.
+In addition to metadata, databases also need to present an interface to humans (and generally also to other software programs) by which they can access the data.  For the past few decades, the best-known such interface is the structured query language SQL.\footnote{The name of SQL may be pronounced "sequel" or "ess, queue, ell"}.  SQL has four main commands: |INSERT|, |UPDATE|, and |DELETE|, which are used to manipulate data in the database, and |SELECT|, which is used to \term{query} the database, in other words, to request data for some purpose.  Dialects of SQL with minor differences are used by most of the long-established database brands on the market---Oracle, IBM DB2, Microsoft SQL Server, PostgreSQL, MySQL, etc---so it has the benefit of being an industry standard.
 
 Because SQL is a public interface, it means that multiple users and multiple programs can access the data in the same database.  Salespeople may enter their orders in a mobile app, customers may place orders online through a website, secretaries may enter the data using a Microsoft Access form, the shipping department may receive the data via e-mail reports, and the accountant may view it in a spreadsheet, but, since all of these programs are speaking to the database via SQL, it doesn't matter that they were all purchased at different times, programmed in different languages, and used by different users.  Databases therefore offer the benefit of \term{program-data independence}: since the data has metadata and a stable interface, we can change a program or process that interacts with it (such as the structure of a data entry form) without worrying about disrupting every \emph{other} program or process that uses it.
 
@@ -208,23 +205,23 @@ $ _
 \end{minted}
 
 
-The prompt gives us some useful information.  It tells us who is logged in, and what directory/folder you're currently working in (the \verb|~| is an abbreviation for the user's home directory).  The prompt is customizable, and will probably appear differently to users on Mac and Linux systems.  From here on out, in my examples I will simply use \verb|$| to represent the command prompt.  To execute a command, type it at the prompt and press Enter.  Some of the commands you can try are \code{ls} (list files in the directory) and \code{cd Documents} (change to the "My Documents" folder on Windows).
+The prompt gives us some useful information.  It tells us who is logged in, and what directory/folder you're currently working in (the |~| is an abbreviation for the user's home directory).  The prompt is customizable, and will probably appear differently to users on Mac and Linux systems.  From here on out, in my examples I will simply use |$| to represent the command prompt.  To execute a command, type it at the prompt and press Enter.  Some of the commands you can try are |ls| (list files in the directory) and |cd Documents| (change to the "My Documents" folder on Windows).
 
-Now, let's see if your computer is set up to use Python.  At the prompt (represented here by the \code{\$}), type:
+Now, let's see if your computer is set up to use Python.  At the prompt (represented here by the |$|), type:
 
 \mint{shell}|$ python|
 
-If you got an error, first: did you type the \verb|$|?  You weren't supposed to type that!  The \verb|$| is just my stand-in for the command prompt which will be different on every student's computer.  You should have typed the word \verb|python| only, and then hit Enter.
+If you got an error, first: did you type the |$|?  You weren't supposed to type that!  The |$| is just my stand-in for the command prompt which will be different on every student's computer.  You should have typed the word |python| only, and then hit Enter.
 
-If that's not the problem, then you might have gotten an error saying \verb|"python not found"| or something similar.  To fix this, you need to update your operating system's \verb|PATH| variable.  This is a setting that tells the computer where, when someone enters a command, to look for the program the user indicated.  For a Windows user, Python 3.4 will be installed in the directory \verb|C:\Python34\| and some other necessary scripts will be in \verb|C:\Python34\Scripts\|.  You'll need to find your existing \verb|PATH| and add those two directories at the end of it.  Instructions for Windows users can be found here: \url{http://www.computerhope.com/issues/ch000549.htm}.  On a Macintosh I'm not quite sure where Python will be installed by default, but some instructions for setting the \verb|PATH| are found here: \url{http://www.tech-recipes.com/rx/2621/os_x_change_path_environment_variable/}.  You'll want to close your terminal and open a new one after changing the \verb|PATH|.
+If that's not the problem, then you might have gotten an error saying |"python not found"| or something similar.  To fix this, you need to update your operating system's |PATH| variable.  This is a setting that tells the computer where, when someone enters a command, to look for the program the user indicated.  For a Windows user, Python 3.4 will be installed in the directory |C:\Python34\| and some other necessary scripts will be in |C:\Python34\Scripts\|.  You'll need to find your existing |PATH| and add those two directories at the end of it.  Instructions for Windows users can be found here: \url{http://www.computerhope.com/issues/ch000549.htm}.  On a Macintosh I'm not quite sure where Python will be installed by default, but some instructions for setting the |PATH| are found here: \url{http://www.tech-recipes.com/rx/2621/os_x_change_path_environment_variable/}.  You'll want to close your terminal and open a new one after changing the |PATH|.
 
-If everything goes well, the next time you enter the \verb|python| command, the Python interpreter will open.  It will tell you the version of python you are running, and give you a new prompt, probably \verb|>>>|.  At this prompt, you can enter lines of Python code, but you cannot enter operating system commands.  Try entering the following at the prompt.  (Don't enter the \verb|>>>|!)
+If everything goes well, the next time you enter the |python| command, the Python interpreter will open.  It will tell you the version of python you are running, and give you a new prompt, probably |>>>|.  At this prompt, you can enter lines of Python code, but you cannot enter operating system commands.  Try entering the following at the prompt.  (Don't enter the |>>>|!)
 
 \mint{pycon}|>>> print('hello world')|
 
 The interpreter should process this line of code---your first Python program!---and the words 'hello world' will appear on the line below it.
 
-At any time you can type \code{quit()} to exit the Python interpreter and return to the operating system prompt.
+At any time you can type |quit()| to exit the Python interpreter and return to the operating system prompt.
 
 
 \subsection*{Writing a Python program}
@@ -241,17 +238,17 @@ print('2+2 is', 2+2)
 input('Press ENTER to continue...')
 \end{pycode}
 
-Save the file as \code{hello.py}.  The "\verb|.py|" extension to the filename tells Python and other programs that this is a Python program.  Be careful that your text editor doesn't automatically add a "\verb|.txt|" extension instead.  To run your new program, navigate to the folder/directory where you saved the file, and type the following:
+Save the file as |hello.py|.  The "|.py|" extension to the filename tells Python and other programs that this is a Python program.  Be careful that your text editor doesn't automatically add a "|.txt|" extension instead.  To run your new program, navigate to the folder/directory where you saved the file, and type the following:
 
 \mint{shell}|$ python hello.py|
 
-The program will run, print some sentences to the terminal, and ask you to press Enter.  Once you do, you'll be returned to the command prompt (\code{\$}).  You are now set up to write any Python programs you want, and run them.  If this doesn't work, you may still need practice using the command prompt, or may need help to set your \verb|PATH| correctly.  Also, make sure you're at the operating system command line (\verb|$|) and not inside the Python interpreter (\verb|>>>|) when you enter \verb|python hello.py|.
+The program will run, print some sentences to the terminal, and ask you to press Enter.  Once you do, you'll be returned to the command prompt (|$|).  You are now set up to write any Python programs you want, and run them.  If this doesn't work, you may still need practice using the command prompt, or may need help to set your |PATH| correctly.  Also, make sure you're at the operating system command line (|$|) and not inside the Python interpreter (|>>>|) when you enter |python hello.py|.
 
 \subsection*{Writing some data to a file}
 
-In our next program, we're going to write some data to a file in the \term{CSV} (comma-separated values) format.  This is one way of organizing some data to share it with others.  Its limitations will be considered in the next chapter.  Within the code, I will use \emph{comments}.  These lines, beginning with \verb|#|, are ignored by Python, so we use them to provide explanations for other people who may have to maintain or use our code.
+In our next program, we're going to write some data to a file in the \term{CSV} (comma-separated values) format.  This is one way of organizing some data to share it with others.  Its limitations will be considered in the next chapter.  Within the code, I will use \emph{comments}.  These lines, beginning with |#|, are ignored by Python, so we use them to provide explanations for other people who may have to maintain or use our code.
 
-Call this file \code{writefile.py}:
+Call this file |writefile.py|:
 
 \begin{pycode}
 # open a new file in "write" mode
@@ -270,11 +267,11 @@ f.close()
 input('Press ENTER to continue...')
 \end{pycode}
 
-Run it once, and you will see that a new file called \code{datafile.csv} has appeared in the folder/directory where you are working.  You can run the script any number of times and it will re-create the same file.  The way we opened the output file, with the "w" code, deletes the existing file and creates a new one every time it is run.
+Run it once, and you will see that a new file called |datafile.csv| has appeared in the folder/directory where you are working.  You can run the script any number of times and it will re-create the same file.  The way we opened the output file, with the "w" code, deletes the existing file and creates a new one every time it is run.
 
 \subsection*{A very simple data entry system}
 
-Now let's expand on this program to allow interactive data entry.  In \code{dataentry.py}, we use a \code{while} loop to ask for data until such time as the user leaves the name field blank (by pressing Enter twice).  The condition \code{True} is always true, so the loop repeats itself infinitely until the \code{break} is executed.  Note that in Python, the block of code within the loop is indicated by indentation, so you must indent each line after \code{while} the same way, and stop indenting when you come to the line containing \code{f.close()}.
+Now let's expand on this program to allow interactive data entry.  In |dataentry.py|, we use a |while| loop to ask for data until such time as the user leaves the name field blank (by pressing Enter twice).  The condition |True| is always true, so the loop repeats itself infinitely until the |break| is executed.  Note that in Python, the block of code within the loop is indicated by indentation, so you must indent each line after |while| the same way, and stop indenting when you come to the line containing |f.close()|.
 
 \begin{pycode}
 f = open("datafile.csv", "w")
@@ -293,13 +290,13 @@ while True:
 f.close()
 \end{pycode}
 
-Were you able to follow everything that was going on in the code?  Python is pretty close to English, so sometimes you can just guess.  If you are struggling, you may want to search the Internet for help with the keywords \code{while} and \code{if}.  Don't be shy about asking for help!
+Were you able to follow everything that was going on in the code?  Python is pretty close to English, so sometimes you can just guess.  If you are struggling, you may want to search the Internet for help with the keywords |while| and |if|.  Don't be shy about asking for help!
 
 \subsection*{A system to read the data}
 
-You have stored your data in an organized way, using a commonly-known format (CSV).  It even has a little bit of metadata---the first line contains headers that tell us the names of the fields in each row: name, age, and sex.  With \code{readdata.py}, we design a system to read the data and describe what the metadata says about it.  It will print this to the screen.
+You have stored your data in an organized way, using a commonly-known format (CSV).  It even has a little bit of metadata---the first line contains headers that tell us the names of the fields in each row: name, age, and sex.  With |readdata.py|, we design a system to read the data and describe what the metadata says about it.  It will print this to the screen.
 
-Note that we use the same command, \code{open}, to open the CSV file, but this time with the code "\code{r}" for "read".  Each line of the file is \code{strip}ped of its newline character and then \code{split} into a list of three items.  In Python, as in most programming languages, the items in a list are accessed by number beginning with zero.  So \code{headers[0]} is the first item in the list of headers, \code{headers[2]} is the third item, and so on.  In this program, we use a \code{for} loop instead of a \code{while} loop; this is another very common structure.
+Note that we use the same command, |open|, to open the CSV file, but this time with the code "|r|" for "read".  Each line of the file is |strip|ped of its newline character and then |split| into a list of three items.  In Python, as in most programming languages, the items in a list are accessed by number beginning with zero.  So |headers[0]| is the first item in the list of headers, |headers[2]| is the third item, and so on.  In this program, we use a |for| loop instead of a |while| loop; this is another very common structure.
 
 \begin{pycode}
 print("Accessing data file...\n")
@@ -333,8 +330,8 @@ This simple program cannot be said to truly "understand" the data, but it does m
 \subsection*{Challenges}
 
 \begin{enumerate}
-    \item The program \code{readdata.py} can read any number of rows but only three columns of data (because that's how many we used in \code{dataentry.py}). Can you alter it to handle any arbitrary number of columns?
-    \item After doing the above, can you now extend \code{dataentry.py} to allow the user to input any number of columns?  It should probably ask for the column labels first, and then begin regular data entry as before.
+    \item The program |readdata.py| can read any number of rows but only three columns of data (because that's how many we used in |dataentry.py|). Can you alter it to handle any arbitrary number of columns?
+    \item After doing the above, can you now extend |dataentry.py| to allow the user to input any number of columns?  It should probably ask for the column labels first, and then begin regular data entry as before.
     \item Our data entry program did no validation on the data that was entered, just accepted whatever the user typed.  How could a user enter bad data that would crash our program.  More interestingly... how might a clever user enter data that would trick the system without crashing it?
     \item We read the CSV file line by line (i.e. row by row) and printed out the three variables in a row together.  How could we read, or process, all the variables in a \emph{column} together?  For example, how might we compute a sum or average of all values in the "AGE" column?
     \item CSV is a great format for tabular data in which each row has the same number of columns, but what if your data doesn't fit that criterion?  For example, what if we wanted to add cars, or pets, or children's names to each row of data.  There could be zero, one, or any number of these for each row.  Design a data format that would allow us to store such data, and still incorporate metadata that tells us what it is.  Can you write a script to produce your data file?  Can you write a script to read it?  What limitations does your new data file have?
@@ -431,17 +428,17 @@ Every HTTP message has an initial line, which is different for requests and resp
 
 The initial line for an HTTP request includes a method, a URL\footnote{URL stands for "Uniform Resource Locator" and is the address of the resource (such as a file) that you are requesting.}, and the HTTP version, for example:
 
-\code{GET /path/to/file/index.html HTTP/1.1}
+|GET /path/to/file/index.html HTTP/1.1|
 
-The most common method you use when browsing the web is \code{GET}, which simply says, "send me this resource", and doesn't change data or have other side effects on the server.  You sometimes use \code{POST} for submitting forms, commenting on blogs and so forth---this is a method that adds data to the server.  You might use \code{PUT} when uploading files such as photos, and there are several other methods that are used from time to time.
+The most common method you use when browsing the web is |GET|, which simply says, "send me this resource", and doesn't change data or have other side effects on the server.  You sometimes use |POST| for submitting forms, commenting on blogs and so forth---this is a method that adds data to the server.  You might use |PUT| when uploading files such as photos, and there are several other methods that are used from time to time.
 
 The initial line for a response from a server includes the HTTP version, a response code, and an English "reason phrase", for example:
 
-\code{HTTP/1.0 200 OK}
+|HTTP/1.0 200 OK|
 
 or
 
-\code{HTTP/1.0 404 Not Found}
+|HTTP/1.0 404 Not Found|
 
 Most communication on the internet occurs in this pattern of requests and responses.  The requests often include metadata ("headers") which may identify the person who made the request and the browser version he is using.  Response headers may include the date of the response, and if there is a message body such as a web page, will tell you the type of data to expect, and its length.  Several other headers may be useful to us in building systems to communicate data over the Internet, and I will discuss them below.
 
@@ -472,17 +469,17 @@ According to a white paper by IBM's Alex Rodriguez, a modern implementation of R
     \item Communicate in XML, JSON, or both.
 \end{itemize}
 
-The first of these principles requires that we think of our data as "resources" to be accessed, rather than programs to access them, and use URLs that seem to be addresses to those resources.  The old, non-RESTful\footnote{RESTless?} way to implement comments on a blog (to give an example), might be to write a piece of code called \code{comment.php} and the URL to read the comments might be:
+The first of these principles requires that we think of our data as "resources" to be accessed, rather than programs to access them, and use URLs that seem to be addresses to those resources.  The old, non-RESTful\footnote{RESTless?} way to implement comments on a blog (to give an example), might be to write a piece of code called |comment.php| and the URL to read the comments might be:
 
-\code{http://www.myblog.com/comment.php?post=42\&action=read}
+|http://www.myblog.com/comment.php?post=42\&action=read|
 
 The RESTful way to address the comments for this article would be to use a URL like the following:
 
-\code{http://www.myblog.com/articles/42/comments}
+|http://www.myblog.com/articles/42/comments|
 
 This implies that there is a folder or directory called "articles", and a folder for article \#42 within it, and a folder of "comments" within that.  On the server side, these folders need not actually exist, but the server should be programmed to receive a URL that looks like a folder structure and respond with the proper data.  The simulated folder structure has a couple of benefits.  First, it hides the details of how the site is programmed, and this means we could change the programming without changing the URL structure.  Second, and more importantly, it allows our consumers to use the HTTP methods directly on the data (aka "resources") that they want, instead of indirectly on scripts.
 
-The RESTful architecture maps the four main HTTP methods \code{POST}, \code{GET}, \code{PUT}, and \code{DELETE} to the four "CRUD" operations which are used in almost any application that operates on data.  See Table \ref{tab:httpcrud}.  CRUD stands for Create, Read, Update, and Delete.  It is almost universal that we will want to add new data to our system, read the data we have stored, change existing data, and remove data from storage.  Consider the contacts list on your phone---a simple database.  You need to be able to add new contacts, browse them to find one you want to call, update them when friends get new phone numbers, and delete the old ones you never used.
+The RESTful architecture maps the four main HTTP methods |POST|, |GET|, |PUT|, and |DELETE| to the four "CRUD" operations which are used in almost any application that operates on data.  See Table \ref{tab:httpcrud}.  CRUD stands for Create, Read, Update, and Delete.  It is almost universal that we will want to add new data to our system, read the data we have stored, change existing data, and remove data from storage.  Consider the contacts list on your phone---a simple database.  You need to be able to add new contacts, browse them to find one you want to call, update them when friends get new phone numbers, and delete the old ones you never used.
 
 \begin{table}
 \centering
@@ -492,22 +489,22 @@ The RESTful architecture maps the four main HTTP methods \code{POST}, \code{GET}
     \toprule[1.5pt]
     \head{HTTP method} & \head{CRUD operation} & \head{Meaning} \\
     \midrule
-    \code{GET} & Read & Fetch data without altering it.\\
+    |GET| & Read & Fetch data without altering it.\\
     \midrule
-    \code{POST} & Create & Add this new data to the resource, creating the resource if it doesn't yet exist.\\
+    |POST| & Create & Add this new data to the resource, creating the resource if it doesn't yet exist.\\
     \midrule
-    \code{PUT} & Update & Replace the existing resource with this (newer) data, creating it if it doesn't yet exist.\\
+    |PUT| & Update & Replace the existing resource with this (newer) data, creating it if it doesn't yet exist.\\
     \midrule
-    \code{DELETE} & Delete & Remove this resource.\\
+    |DELETE| & Delete & Remove this resource.\\
     \bottomrule[1.5pt]
 \end{tabular}
 \end{table}
  
-Allowing our users (humans as well as software applications) to directly access data resources also helps us to achieve statelessness, and to mitigate some of the risks inherent in unreliable networks.  Of the four main HTTP methods, one (\code{GET}) is "safe" meaning that by design it has no side effects on the server.\footnote{Except harmless ones like logs of web traffic, advertisements served, and so on.}  Two of the other methods (\code{PUT} and \code{DELETE}) are \term{idempotent}, meaning that they have the same effect---and no unintended side effects---whether they are executed once, twice, or a dozen times.  There can still beside effects when using the \code{POST} method, such as adding the same blog comment twice, but we are at least removing the problems that occurred in the past when \code{GET} and \code{POST} were used for \emph{everything} instead of only the operations proper to them.
+Allowing our users (humans as well as software applications) to directly access data resources also helps us to achieve statelessness, and to mitigate some of the risks inherent in unreliable networks.  Of the four main HTTP methods, one (|GET|) is "safe" meaning that by design it has no side effects on the server.\footnote{Except harmless ones like logs of web traffic, advertisements served, and so on.}  Two of the other methods (|PUT| and |DELETE|) are \term{idempotent}, meaning that they have the same effect---and no unintended side effects---whether they are executed once, twice, or a dozen times.  There can still beside effects when using the |POST| method, such as adding the same blog comment twice, but we are at least removing the problems that occurred in the past when |GET| and |POST| were used for \emph{everything} instead of only the operations proper to them.
 
 Finally, web services must communicate in a standard data interchange format, usually JSON or XML, although the other formats discussed in the previous chapter may also be good candidates for the reasons stated there.
 
-In sum, if we want people to be able to access our data over the Internet, we need to make it available via the HTTP methods, using sensible URLs that correspond to the data resources themselves.  We need to receive requests in standard data formats, and send responses in standard data formats.  If we are merely sharing our data, we can start by implementing the \code{GET} method.  The other HTTP methods are available if we want to create a truly interactive data application.
+In sum, if we want people to be able to access our data over the Internet, we need to make it available via the HTTP methods, using sensible URLs that correspond to the data resources themselves.  We need to receive requests in standard data formats, and send responses in standard data formats.  If we are merely sharing our data, we can start by implementing the |GET| method.  The other HTTP methods are available if we want to create a truly interactive data application.
 
 If we adhere to these principles, we gain a great deal of freedom!  Since our URLs refer to resources rather than to pieces of code, we're free to use any technology we want to code our application, and to change it at any time without disrupting our users.  Since our application is stateless and most of its methods are safe or idempotent, we can use cluster computing, caching, and other tricks on the back end to improve performance.  (More on that in the next chapter.)  By designing the RESTful interface or API \emph{first} and then coding the implementation, we save a lot of time in programming, testing, and supporting customers.
 
@@ -516,27 +513,27 @@ Good API design begins with pencil and paper.  An API can be thought of as a con
 
 Imagine, for example, that your application is a Twitter-like microblog.  The API should have a ULR endpoint for each \term{entity} in the microblog's universe.  These "entities" are its nouns; some are individual objects: users, messages, hashtags, etc., and others are \term{collections}, such as the set of all messages posted by a certain user.  Your API should provide a way to access both objects and collections, and it should use the four main HTTP methods in the correct way, as its verbs.
 
-An initial sketch of the API documentation might include the following:\\
+An initial sketch of the API documentation might include the following:
 
-\code{GET /users}: List all users of the system (usernames and real names)
+|GET /users|: List all users of the system (usernames and real names)
 
-\code{POST /users}: Create a new user
+|POST /users|: Create a new user
 
-\code{GET /users/\{username\}}: Retrieve all data about the specified user
+|GET /users/\{username\}|: Retrieve all data about the specified user
 
-\code{GET /users/\{username\}/posts}: Retrieve all posts by this user
+|GET /users/\{username\}/posts|: Retrieve all posts by this user
 
-\code{DELETE /users/\{username\}}: Delete the specified user account\\
+|DELETE /users/\{username\}|: Delete the specified user account
 
-And similar methods would be documented for URL endpoints for messages, hashtags, and other data in the application.  After the API endpoints, which correspond to resources, your API may provide a number of optional parameters to filter the response.  For example, instead of all messages, your user may only want the last 10, or only want messages posted during the last month.  In a URL, these parameters follow a \code{?} and are separated by \code{\&}.  For example:\\
+And similar methods would be documented for URL endpoints for messages, hashtags, and other data in the application.  After the API endpoints, which correspond to resources, your API may provide a number of optional parameters to filter the response.  For example, instead of all messages, your user may only want the last 10, or only want messages posted during the last month.  In a URL, these parameters follow a |?| and are separated by |&|.  For example:
 
-\code{GET /messages?limit=10}: Retrieve the last 10 messages.
+|GET /messages?limit=10|: Retrieve the last 10 messages.
 
-\code{GET /messages?limit=10\&offset=10}: Retrieve 10 messages \emph{after} the first 10 (in other words, retrieve "page 2" of messages).
+|GET /messages?limit=10\&offset=10|: Retrieve 10 messages \emph{after} the first 10 (in other words, retrieve "page 2" of messages).
 
-\code{GET /messages?month=January\&year=2015}: Retrieve all messages from January 2015.
+|GET /messages?month=January\&year=2015|: Retrieve all messages from January 2015.
 
-Some other good practices in setting up your API are to choose a good URL root.  You could use something like \code{http://www.mysite.com/api/*} (the \code{*} is where your consumers put the  specified URL endpoints), or you could use \code{http://api.mysite.com/*}.  You may also want to include a version number, so that if you change the API, consumers can still use the old version.  For example: \code{http://api.mysite.com/v1/*}.
+Some other good practices in setting up your API are to choose a good URL root.  You could use something like |http://www.mysite.com/api/*| (the |*| is where your consumers put the  specified URL endpoints), or you could use |http://api.mysite.com/*|.  You may also want to include a version number, so that if you change the API, consumers can still use the old version.  For example: |http://api.mysite.com/v1/*|.
 
 Your API should also be well-documented so that your users don't have to figure it out for themselves.  Where should you put this documentation?  A good choice might be to put it in the form of a web page at the root URL, so that anyone with access to the API also has access to the documentation.  Be sure to include sample URLs, as many people find it easier to modify the sample than to build their own from scratch.
 
@@ -793,7 +790,7 @@ What if our queries need to span billions of pieces of data?  For example, click
 
 \todo{Set up a Hadoop cluster and do a simple M/R job like word count.}
 
-\todo{Do something a little more complex and useful, maybe using For example, Python and \code{mrjobs}.}
+\todo{Do something a little more complex and useful, maybe using For example, Python and mrjobs.}
 
 \todo{Show how Hive or one of its competitors can be used to transform SQL-like queries into MapReduce jobs.}
 
