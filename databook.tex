@@ -91,7 +91,7 @@ The sequence of these notes represents my pedagogical thinking and is subject to
 %% BEGIN CHAPTERS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Atoms, Bytes, and Databases}
+\chapter{Atoms, Bytes, and Databases}\label{ch:atoms}
 
 \section*{Preview}
 
@@ -102,7 +102,7 @@ This chapter lays the groundwork for learning about data management by introduci
 
 Your computer is a physical machine, made of atoms and charged with electrons.  It is easy to lose sight of the artifact and think of the computer only in symbolic terms: windows, menus, programs, and so on.  One component of your computer is "memory" (or RAM) which holds---in the form of  electrical impulses---the instructions and data that your computer is currently processing.  This memory fades away when the machine is powered off.  Consequently, for you to be able to do any non-ephemeral work, the computer needs some means of saving its state or its output to \term{persistent storage}.  Usually this means a device like a hard disk drive (HDD), but there are other options for persistent storage such as solid-state drives (SSD), optical disks (CDs/DVDs), thumb drives, and tape drives.  Any of these devices can store files in such a way that they can be "remembered" (loaded into active memory) the next time the computer is powered up.
 
-In order to really understand "big data", we need to always keep in mind that these systems have material properties and are affected by laws of physics; they are more than just software.  The physical constraints on hard drives, processors, and networks have driven the evolution of relational databases, analytical systems, and cluster-based computing for big data. We will consider these constraints more in Chapter \ref{ch:atoms}, but take a look at the videos I've recommended (at the end of this chapter) by Andrew Blum and Genevieve Bell---both are compelling talks about the unexpected and often overlooked physical and human aspects of big data and the Internet.
+In order to really understand "big data", we need to always keep in mind that these systems have material properties and are affected by laws of physics; they are more than just software.  The physical constraints on hard drives, processors, and networks have driven the evolution of relational databases, analytical systems, and cluster-based computing for big data. We will consider these constraints more in Chapter \ref{ch:olap}, but take a look at the videos I've recommended (at the end of this chapter) by Andrew Blum and Genevieve Bell---both are compelling talks about the unexpected and often overlooked physical and human aspects of big data and the Internet.
 
 \section{Bytes}
 
@@ -406,7 +406,7 @@ Also we could use Pig here to automate the transformations?}
 
 
 
-\chapter{Opening Your Data to the World}
+\chapter{Opening Your Data to the World}\label{ch:apis}
 
 \section*{Preview}
 
@@ -629,21 +629,72 @@ Now we move up to the problems of scale in the internet era, which afflict singl
 Databases, that is, software systems that persist data for future retrieval, come in many forms because they face numerous challenges and trade-offs.  They abstract away the physical storage and retrieval of data so that application developers can work with data models appropriate to their business rules and constraints.  The relational data model has been dominant since the 1970s but now shares the field with a number of other types of data models.  Databases introduce unique challenges for operations and maintenance.
 
 \section{Defining the Database}
-A database is a system that \term{persists} data for future retrieval.  
+A database is a system that \term{persists} data for future retrieval.  Since data is such a vital resource, databases are an important part of the infrastructure of a business.  Other software applications depend on databases for access to the data they need.  This means databases must deal with two particularly challenging constraints: (1) they cannot lose the data, and (2) they cannot be shut down.  Designing and maintaining a database is sometimes likened to building and repairing a ship while in the middle of the ocean.
 
+In the tutorial in Chapter \ref{ch:atoms}, we created a few simple scripts to write a CSV file and to read and print the data to screen.  The software we wrote, although crude, has one pretty interesting characteristic: we could restart the computer, and the data would still be there.  It is persistent.  In other kinds of software development, programmers can freely alter their code and test new features or bug fixes, iterating as many times as they like---but in database development, the data persists.  Since the data cannot be thrown out, database administrators and the developers of data-driven applications must work with the constraint that it must still use the existing data.  We could re-write our scripts from the initial tutorial, but we're committed to the CSV format for the data storage unless we want to lose data.  Therefore, choices made in the initial \term{data modeling} matter a great deal.
+
+\section{Data Models}
+What most real database management systems do is to provide a layer of abstraction on top of the physical storage of data.  The abstraction is called a \term{data model} and there are several common ones.  In the \term{relational data model}, data is stored in tables with rows and columns, with a few very simple rules:
+
+\begin{itemize}
+    \item No two rows may be identical.
+    \item No two columns may have the same name.
+    \item No data field may have multiple values.
+    \item There is no inherent order of rows or columns.
+\end{itemize}
+
+What it means to call this an \term{abstraction} is that application developers, or other users working with the data, will simply interact with tables, rows, and columns.  The underlying implementation of data storage on disk will be handled by the database management system and will be invisible to users.  One data table could be physically implemented on one disk or distributed across multiple disks, partitioned to keep rows together or to keep columns together, stored in the order data was added or in numerical or alphabetical order---but all of these details would be hidden from the user.
+
+Databases are, however, what computer scientists call "leaky abstractions".  In actual practice, there are choices you can make in physical implementation that will make a difference in terms of performance.  Since these choices are fundamental to the emergence of analytical databases such as data warehouses, I will write more about them in Chapter \ref{ch:olap}.
+
+To free the developers and users of data-driven applications from working directly with physical data storage on disk, databases offer APIs to enable database \term{queries}.  These APIs may be RESTful HTTP interfaces, like the ones we designed in Chapter \ref{ch:apis}, and in fact there are some database-as-a-service products you access through the Internet.\footnote{Firebase (\url{https://www.firebase.com/}) and Orchestrate (\url{https://orchestrate.io/}) are two examples.}  However, the most well-known API for accessing relational databases is the \term{SQL} query language.
+
+\begin{table}
+\centering
+\caption{cities}\label{tab:cities}
+\vspace{10pt}
+\begin{tabular}{cccc}
+    \toprule[1.5pt]
+    \head{id\#} & \head{city} & \head{state} & \head{population}\\
+    \midrule
+    1 & Los Angeles & CA & 3,880,000\\
+    2 & Las Vegas & NV & 603,488\\
+    3 & Phoenix & AZ & 1,510,000\\
+    4 & Tucson & AZ & 526,116\\
+    5 & Santa Fe & NM & 69,976\\
+    6 & Salt Lake City & UT & 191,180\\
+    7 & San Antonio & TX & 1,410,000\\
+    \bottomrule[1.5pt]
+\end{tabular}
+\end{table}
+
+Consider Table \ref{tab:cities}, a list of cities.  Perhaps they are where our customers live.  If we wanted to know the names of the cities in Arizona, in order from largest to smallest, we could write a query like:
+
+\begin{minted}{sql}
+SELECT city, population
+FROM cities
+WHERE state='AZ'
+ORDER BY population DESCENDING
+\end{minted}
+
+As the user of a relational database, you will have to learn the basics of SQL, but you will not need to know how the database will retrieve the data from disk, or what algorithms it uses to sort and filter the data to produce the result you requested.  There are also SQL queries for creating, updating, and deleting data.  Along with "reading", these are called the \term{CRUD operations} and almost any database needs to support them.  (Much more on SQL in Chapter \ref{ch:sql}.)
+
+
+\section{Databases in the Application}
+
+\todo{Databases usually run in a client-server mode.  Generally accessible by interactive shell or by GUI.  They have APIs so programs can access them.  Generally they can process scripts.  Scripts may also be a good way to do version control on them.  Processing logic may be stored in the database (stored procedures, triggers) or in the application code.  Pros and cons of the two approaches.}
+
+
+\section{Logical Database Design}
 
 \todo{A little bit about storage and retrieval.  Transactions.  Physical arrangement of data on disk.  How databases provide an abstraction--the logical/conceptual data model--so that users don't need to know the nitty-gritty of where and how data is stored on disk.  Queries, indexes, query optimizers.}
 
-\section{Data Models}
 \todo{What are data models?  Reminding them of the difference between CSV and JSON/XML---the "flatness" of the former and "object orientation" of the latter---explain how the relational model got adopted.  It allowed "flatness" while minimizing redundancy and maximizing integrity.  Data stored in tables.  This is modeled with an E-R diagram.}
 
 \todo{Impedance mismatch problem.  Relational model allows for very flexible querying of data, but is very complex.  JOINs are expensive.  In the Internet era, for many jobs, it would be better to keep the structure simple and the data aggregated together.  Hence aggregate-oriented (KV and DS) databases.}
 
 \todo{A teaser that there are other models out there, like graph databases, for later study.}
 
-\section{Databases in the Application}
-
-\todo{Databases usually run in a client-server mode.  Generally accessible by interactive shell or by GUI.  They have APIs so programs can access them.  Generally they can process scripts.  Scripts may also be a good way to do version control on them.  Processing logic may be stored in the database (stored procedures, triggers) or in the application code.  Pros and cons of the two approaches.}
 
 
 
@@ -681,7 +732,7 @@ A database is a system that \term{persists} data for future retrieval.
 
 
 
-\chapter{Relational Databases}
+\chapter{Relational Databases}\label{ch:sql}
 
 \section*{Preview}
 
@@ -730,7 +781,7 @@ Focus on simple versus complex queries, and what sort of stuff a relational data
 
 
 
-\chapter{Analytical Databases}\label{ch:atoms}
+\chapter{Analytical Databases}\label{ch:olap}
 
 \section*{Preview}
 
