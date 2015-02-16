@@ -543,6 +543,8 @@ For more on API design, see Recommended Reading below.
 \section*{Tutorial: A RESTful Web Service}
 \addcontentsline{toc}{section}{Tutorial: A RESTful Web Service}
 
+In class, we used the tutorial by Miguel Grinberg at \url{http://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask}.  Please refer to that tutorial until/unless I get around to writing my own.
+
 \todo{Introduce Flask as a minimal web server.  Create a script that provides some static data from a pre-made JSON file.  Set up a URL structure so that we have created a web service that makes sense.}
 
 \todo{Demo some software that can consume the data.  Maybe Tableau or Excel can do this?}
@@ -576,7 +578,7 @@ For more on API design, see Recommended Reading below.
 
 \section*{Preview}
 
-Now we move up to the problems of scale in the internet era, which afflict single-node databases.  Talk about distributed computing and massively-parallel processing.  Explain how/why "the cloud" works.  Discuss consistency and availability trade-offs with distributed data.
+Now we move up to the problems of scale in the internet era, which afflict single-node databases.  Talk about distributed computing and massively-parallel processing.  Explain how/why "the cloud" works.  Discuss consistency and availability trade-offs with distributed data.  For now, 
 
 \section{Scaling Out}
 \todo{Sum up what we saw in the previous chapter as a "single node" web service with a nice diagram.  Talk about the limitations of scaling "up" to larger and more expensive computers.  Instead, the new paradigm is scaling "out" to large clusters of cheap commodity computers.}
@@ -627,7 +629,7 @@ Now we move up to the problems of scale in the internet era, which afflict singl
 Databases, that is, software systems that persist data for future retrieval, come in many forms because they face numerous challenges and trade-offs.  They abstract away the physical storage and retrieval of data so that application developers can work with data models appropriate to their business rules and constraints.  The relational data model has been dominant since the 1970s but now shares the field with a number of other types of data models.  Databases introduce unique challenges for operations and maintenance.
 
 \section{Defining the Database}
-A database is a system that \term{persists} data for future retrieval.
+A database is a system that \term{persists} data for future retrieval.  
 
 
 \todo{A little bit about storage and retrieval.  Transactions.  Physical arrangement of data on disk.  How databases provide an abstraction--the logical/conceptual data model--so that users don't need to know the nitty-gritty of where and how data is stored on disk.  Queries, indexes, query optimizers.}
