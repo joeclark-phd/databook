@@ -24,7 +24,6 @@
 \setminted{frame=single,linenos,xleftmargin=24pt}
 \setminted[pycon]{frame=none,linenos=false}
 \setminted[shell]{frame=none,linenos=false}
-
 \newminted{py}{linenos} % use \begin{pycode} for python code blocks
 \newmintinline{py}{}
 %%%
@@ -628,9 +627,9 @@ Now we move up to the problems of scale in the internet era, which afflict singl
 
 \section*{Preview}
 
-Discuss the ways of structuring data in a database.  Primarily focus on comparing RDBMSs (e.g. Postgres) with document stores (e.g. Mongo).  Discuss metadata and queries.  Graph databases and others (e.g. message queues) may be mentioned briefly.  This chapter is primarily about logical data structure and doesn't talk about physical optimization.
+Databases, that is, software systems that persist data for future retrieval, come in many forms because they face numerous challenges and trade-offs.  They abstract away the physical storage and retrieval of data so that application developers can work with data models appropriate to their business rules and constraints.  The relational data model has been dominant since the 1970s but now shares the field with a number of other types of data models.  Databases introduce unique challenges for operations and maintenance.
 
-\section{How a Database Works}
+\section{Defining the Database}
 \todo{A little bit about storage and retrieval.  Transactions.  Physical arrangement of data on disk.  How databases provide an abstraction--the logical/conceptual data model--so that users don't need to know the nitty-gritty of where and how data is stored on disk.  Queries, indexes, query optimizers.}
 
 \section{Data Models}
@@ -660,6 +659,7 @@ Discuss the ways of structuring data in a database.  Primarily focus on comparin
 
 \section*{Recommended Viewing}
 \begin{itemize}
+    \item Kim, Jeeyoung. (2014). "Why I Love Databases". \url{https://medium.com/@jeeyoungk/why-i-love-databases-1d4cc433685f}
     \item "Modern Databases" by Eric Redmond, co-author of "Seven Databases in Seven Weeks".  http://youtu.be/G7-OGEYCMxQ
     \item The "Seven Databases Song".  http://youtu.be/bSAc56YCOaE
     \item "Introduction to NoSQL" by Martin Fowler of Thoughtworks.\\ http://youtu.be/qI\_g07C\_Q5I
