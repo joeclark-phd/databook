@@ -134,6 +134,8 @@ Files (in the second sense) are created by software programs, or by humans using
 
 Files are very versatile.  They can big or small, can encode text, images, sound, video, and other types of data.  You can transfer them from one disk to another, e-mail them to colleagues, and share them on the Internet.  But if this was the end of the story, we'd quickly run into some problems.
 
+\section{The Trouble with Files}\label{sec:fileproblems}
+
 Imagine that you work at a small mail-order business where salesmen take orders over the phone, write them down on paper, and hand them to a data entry secretary so that the orders will be fulfilled and sales commissions will be paid.  The secretary enters the handwritten data into a digital file---let's just say it's a spreadsheet.  At the end of every day, she e-mails the file containing the day's orders to the fulfillment department, which processes the customers' payments and ships the orders.  At the end of every week, she sends the seven daily files to the accountant, who uses them to compute the commissions that must be paid to the salesmen.\footnote{This is a real-life example, more or less. At my first real IT job, we had an order entry process like this, except instead of e-mail, the data was transferred from one person to another by floppy disk!}  
 
 There are a number of problems that the business is going to experience in this scenario:
@@ -677,15 +679,30 @@ WHERE state='AZ'
 ORDER BY population DESCENDING
 \end{minted}
 
-As the user of a relational database, you will have to learn the basics of SQL, but you will not need to know how the database will retrieve the data from disk, or what algorithms it uses to sort and filter the data to produce the result you requested.  There are also SQL queries for creating, updating, and deleting data.  Along with "reading", these are called the \term{CRUD operations} and almost any database needs to support them.  (Much more on SQL in Chapter \ref{ch:sql}.)
+As the user of a relational database, you will have to learn about the relational modeling, and the basics of SQL, but you will not need to know how the database will retrieve the data from disk, or what algorithms it uses to sort and filter the data to produce the result you requested.  In addition to |SELECT|, there are SQL queries for creating, updating, and deleting data.  Along with "reading", these are called the \term{CRUD operations} and almost any database needs to support them.  (More on SQL in Chapter \ref{ch:sql}.)
 
 
-\section{Databases in the Application}
+\section{Databases in Applications}
 
-\todo{Databases usually run in a client-server mode.  Generally accessible by interactive shell or by GUI.  They have APIs so programs can access them.  Generally they can process scripts.  Scripts may also be a good way to do version control on them.  Processing logic may be stored in the database (stored procedures, triggers) or in the application code.  Pros and cons of the two approaches.}
+Typically we are not writing ad hoc SQL queries directly through the database, but rather using software \term{applications}.  A data-driven application (or "app", if you really must), is a piece of software that retrieves or processes data from a database for some purpose of the user.  These applications serve as "front ends" and depend on the database as a "back end" technology.  Therefore, the database must run as a server---always on and waiting for requests to respond to.
 
+There are a number of different architectures possible for data-driven applications.  The simplest is when a database application is implemented on a single computer for a single user, a personal database such as an address book or contacts list.  Although such a database can be useful to the individual, it is generally not a good idea that critical business data resources be stored in this way.  Personal databases, just like personal spreadsheets, are challenging to scale and to coordinate.\footnote{See section \ref{sec:fileproblems} to review why.} 
 
-\section{Logical Database Design}
+More sophisticated applications are built with \term{client-server architectures}.  A \term{client} in this context is a piece of software or hardware that makes requests to a server over a network.  A \term{server} is a centralized piece of software or hardware that waits for, and responds to, these requests.  Client-server architectures can be categorized as "thin client" or "fat client", or "two-tier", "three-tier", and "\emph{n}-tier".  Enterprises these days are also bringing within their walls some of the data architecture concepts that emerged on the Internet, such as RESTfulness, as discussed in Chapter \ref{ch:apis}.
+
+\todo{Diagram of fat-client, 2-tier application}
+
+Figure |#| depicts an example of a two-tier, fat client architecture.  In the example, the database server supports what is probably a small workgroup of knowledgeable users.  The users are running sophisticated software that accesses the database through the network.  For example, they might be analysts using Excel, Tableau, or data mining software on their desktop computers to visualize or mine the data stored in the database.  The database server is in charge of the \term{storage logic} of how data is persisted to disk, while most of the rest of the processing happens on client computers.  An architecture like this allows expert users to select or create their own tools, but does not scale up well to thousands or millions of users.  Only trusted users, who know enough not to accidentally corrupt the data, should be given this kind of direct access.
+
+\todo{Diagram of thin-client, 3-tier application}
+
+Another very typical pattern for large scale applications is a thin-client, 3-tier architecture such as the one diagrammed in Figure |#|.  This is a simple architecture that underlies most websites, mobile applications, and other software programs intended for a large user base.  In a three-tier architecture, users access the data through an intermediary \term{application server} and it is the software in the middle that communicates with the database.  The clients in this context tend to be simpler programs that handle only the \term{presentation logic} of the application: receiving input and displaying output.  In what is undoubtedly the most common case, the application server is a web server such as Apache, and the thin client is a web browser such as Chrome, Internet Explorer, or Safari.
+
+A three-tier architecture allows for a separation of labor, as the database administrators are in charge of data modeling, maintenance, and integrity, and application developers are in charge of the \term{processing logic} of how the application uses or changes the data.  These developers access the data by embedding database API calls, such as SQL queries, into their own code.  Because the data is independent of the application, other applications could be written that access the same database server---for example, a website and mobile app may exist side by side, written by different developers using different tools.  With a little imagination, you can further generalize these concepts to four-tier or \emph{n}-tier application architectures.
+
+\todo{Table: types of logic in database applications}
+
+\section{Choices in Logical Database Design}
 
 \todo{A little bit about storage and retrieval.  Transactions.  Physical arrangement of data on disk.  How databases provide an abstraction--the logical/conceptual data model--so that users don't need to know the nitty-gritty of where and how data is stored on disk.  Queries, indexes, query optimizers.}
 
