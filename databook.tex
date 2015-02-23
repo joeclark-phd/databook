@@ -698,11 +698,38 @@ Figure |#| depicts an example of a two-tier, fat client architecture.  In the ex
 
 Another very typical pattern for large scale applications is a thin-client, 3-tier architecture such as the one diagrammed in Figure |#|.  This is a simple architecture that underlies most websites, mobile applications, and other software programs intended for a large user base.  In a three-tier architecture, users access the data through an intermediary \term{application server} and it is the software in the middle that communicates with the database.  The clients in this context tend to be simpler programs that handle only the \term{presentation logic} of the application: receiving input and displaying output.  In what is undoubtedly the most common case, the application server is a web server such as Apache, and the thin client is a web browser such as Chrome, Internet Explorer, or Safari.
 
-A three-tier architecture allows for a separation of labor, as the database administrators are in charge of data modeling, maintenance, and integrity, and application developers are in charge of the \term{processing logic} of how the application uses or changes the data.  These developers access the data by embedding database API calls, such as SQL queries, into their own code.  Because the data is independent of the application, other applications could be written that access the same database server---for example, a website and mobile app may exist side by side, written by different developers using different tools.  With a little imagination, you can further generalize these concepts to four-tier or \emph{n}-tier application architectures.
+A three-tier architecture allows for a division of labor, as the database administrators are in charge of data modeling, maintenance, and integrity, and application developers are in charge of the \term{processing logic} of how the application uses or changes the data.  These developers access the data by embedding database API calls, such as SQL queries, into their own code.  Because the data is independent of the application, other applications could be written that access the same database server---for example, a website and mobile app may exist side by side, written by different developers using different tools.  With a little imagination, you can further generalize these concepts to four-tier or \emph{n}-tier application architectures.
 
-\todo{Table: types of logic in database applications}
+\begin{table}
+\centering
+\caption{Types of logic in data-driven applications}\label{tab:applogic}
+\vspace{10pt}
+\begin{tabular}{cp{4cm}p{4.5cm}}
+    \toprule[1.5pt]
+    \head{Logic} & \head{Features} & \head{Location}\\
+    \midrule
+    Presentation Logic & Input and output; visual presentation of data & Client-side software \\
+    \midrule
+    Processing Logic & Business rules; data processing and management & "Fat client" \emph{or} application server such as a web server\\
+    \midrule
+    Storage Logic & Data persistence, optimization, and retrieval & Database server \\
+    \bottomrule[1.5pt]
+\end{tabular}
+\end{table}
 
 \section{Choices in Logical Database Design}
+
+If this book were written anywhere between 1985 and 2005, give or take, there would really only be one starting point in learning data modeling: the relational model mentioned previously.  Specialized analytical databases called data warehouses use \term{dimensional models} which are a variation on relational models and are generally implemented with the same technology---relational databases.  Today, however, we are living in the midst of a "Campbrian explosion" of new types of databases and new types of data models.  This necessitates some consideration of the benefits each type of data modeling offers.
+
+Relational data modeling begins by identifying the \term{entity types} in the domain of the data.  These are the nouns---people, organizations, things, events---that the data must describe or refer to.  Employees and departments, products and purchases, are some examples.  For each entity type, a table is created, with one row for every \term{instance} of the entity type.  Instances of data in different tables are related by the use of unique identifiers known as \term{keys}.  For example, a row in the Orders table might indicate that the order was for product \#42 (a reference to a row in the Products table) by customer \#54321 (a reference to a row in the Customers table).  In this way, details of the product and customer are stored only once in the database, despite participating in numerous orders.
+
+At the time relational databases were introduced in the late 1970s, disk space was extremely expensive.\footnote{According to Matt Komorowski, a gigabyte of disk space cost over \$100,000 in 1980 and was less than 10 cents in 2010. http://www.mkomo.com/cost-per-gigabyte}  By eliminating unnecessary redundancy, the relational data model was an elegant solution that kept databases as small as possible.
+
+Relational databases also help businesses protect the integrity of their data by preventing \term{anomalies} or inconsistencies that can crop up in input.  Because each piece of data is stored in only one place, for example, there is only one "source of truth".  For example, a customer's name and address are stored in only one place, so if he changes it for one order, the updated information will be the only information kept in the database.  Contrast this to something like a spreadsheet of orders, in which the same customer may appear with multiple entries of old and new information.
+
+Finally, splitting the data up into its distinct entities and making explicit the relationships between them, relational databases enable us to make complex, ad hoc queries to retrieve data in interesting combinations.  All in all, it is a powerful and versatile way to model data.
+
+
 
 \todo{A little bit about storage and retrieval.  Transactions.  Physical arrangement of data on disk.  How databases provide an abstraction--the logical/conceptual data model--so that users don't need to know the nitty-gritty of where and how data is stored on disk.  Queries, indexes, query optimizers.}
 
