@@ -6,3 +6,11 @@ These are my course notes (under development) for CIS 355, "Business Data Wareho
 Feel free to use this for education and training purposes, as long as you give me credit.
 
 [![Stories in Ready](https://badge.waffle.io/joeclark-phd/databook.svg?label=ready&title=Ready)](http://waffle.io/joeclark-phd/databook)
+
+## Compiling
+
+The book is prepared using LaTeX markup. Because I'm using the `minted` package, which executes syntax highlighting on code blocks, I need to compile the code with the following command on Windows:
+
+    pdflatex -shell-escape databook.tex
+
+You may need to compile the code two or three times for the references and table of contents to be correctly rendered in the PDF.
