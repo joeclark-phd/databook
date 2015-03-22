@@ -513,7 +513,7 @@ If we adhere to these principles, we gain a great deal of freedom!  Since our UR
 \section{Designing an API}
 Good API design begins with pencil and paper.  An API can be thought of as a contract between you (the developer and owner of a data product) and your consumers (the people and products that will use your data).  You are agreeing to make certain resources accessible in prescribed ways, and if you change the API unexpectedly, you may cause headaches for your consumers as their products and their businesses stop working.  So let's first think about API design from the point of view of the consumer---what might he need from your data?
 
-Imagine, for example, that your application is a Twitter-like microblog.  The API should have a ULR endpoint for each \term{entity} in the microblog's universe.  These "entities" are its nouns; some are individual objects: users, messages, hashtags, etc., and others are \term{collections}, such as the set of all messages posted by a certain user.  Your API should provide a way to access both objects and collections, and it should use the four main HTTP methods in the correct way, as its verbs.
+Imagine, for example, that your application is a Twitter-like microblog.  The API should have a URL endpoint for each \term{entity} in the microblog's universe.  These "entities" are its nouns; some are individual objects: users, messages, hashtags, etc., and others are \term{collections}, such as the set of all messages posted by a certain user.  Your API should provide a way to access both objects and collections, and it should use the four main HTTP methods in the correct way, as its verbs.
 
 An initial sketch of the API documentation might include the following:
 
@@ -545,13 +545,209 @@ For more on API design, see Recommended Reading below.
 \section*{Tutorial: A RESTful Web Service}
 \addcontentsline{toc}{section}{Tutorial: A RESTful Web Service}
 
-In class, we used the tutorial by Miguel Grinberg at \url{http://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask}.  Please refer to that tutorial until/unless I get around to writing my own.
+In this tutorial, we're going to set up an HTTP web service.  A web service is like a website, except that it is intended to be used by machines---instead of stylish web pages with images, fonts, and colors, it will serve up data in JSON format at each URL we define.  There are many ways to code a web service (or website) and there are web "frameworks" for almost every popular programming language.\footnote{Rails (for the Ruby language), ASP.NET (for C\#), and Django (for Python) are some of the better known web frameworks.}  In this exercise, I'll introduce a minimalistic web framework for Python called Flask.
 
-\todo{Introduce Flask as a minimal web server.  Create a script that provides some static data from a pre-made JSON file.  Set up a URL structure so that we have created a web service that makes sense.}
+\subsection*{Preparing a Python virtual environment}
 
-\todo{Demo some software that can consume the data.  Maybe Tableau or Excel can do this?}
+As we program this web service, we're going to install a number of "packages" or extensions to Python that are specific to this task, including the Flask framework.  Over the course of the semester you may find that you create a number of new tools that each depends on different packages.  Rather than install them all in the same place (the folder where Python is installed), it is common practice to create a \term{virtual environment} for each new application you develop.  The virtual environment will contain a \emph{copy} of Python, plus any extensions you need for your app, and store them in the same folder as the code.  Consequently, you can copy the folder to another computer or share it with someone else, and won't have to worry about whether they have the same version of Python or the same extensions -- the ones you need will be there already.
 
-\todo{Re-program the back-end somehow, perhaps by including our previous data transform code (so code is stored as XML and transformed by our script into JSON).  This shows that an API enables us to change the "back end" without disrupting the interface to users.}
+To set up such an environment, you first need the |virtualenv| tool installed with Python.  To install extensions to Python, we use the |pip| package manager.  Try typing the following at the command line:
+
+\mint{shell}|$ pip install virtualenv|
+
+Next, create a folder for your new application's code.  This is going to be a LinkedIn-like web service that provides data on users' professional profiles and employment histories, so I'm calling it "flinkedin" and I'll put it in a folder with that name.  You can call it whatever you like.  These two commands in the shell will create a folder (|mkdir| is "make directory") and then navigate into it (|cd| is "change directory"):
+
+\begin{minted}{shell}
+$ mkdir flinkedin
+$ cd flinkedin
+\end{minted}
+
+Here's where we create the virtual environment:
+
+\mint{shell}|$ virtualenv venv|
+
+This creates a new folder within the "flinkedin" folder, called "venv".  If you explore in there, you'll see that it has installed a copy of Python and |pip|, among other things.
+
+Now, to install Flask in the virtual environment's copy of Python, we need to run the virtual environment's copy of |pip|.  It's in a subfolder called "bin" on Mac or Linux, and "Scripts" on Windows.  Windows users, use this command:
+
+\mint{shell}|$ venv/Scripts/pip install flask|
+
+Mac/Linux users instead use:
+
+\mint{shell}|$ venv/bin/pip install flask|
+
+You should get a message stating that |pip| successfully installed |flask| and a number of other packages that it depends on.  Now we have an environment, entirely contained within the "flinkedin" folder, that has the version of Python we want and the Flask package that we will use for this application.
+
+\subsection*{Hello World, This is Flask!}
+
+The basic "Hello World" program for Flask is as follows.  Save this code in the "flinkedin" folder and call it |app01.py|.
+
+\begin{pycode}
+#!venv/bin/python
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def index():
+    return( "Hello World! This is Flask." )
+    
+if __name__ == '__main__':
+    app.run(debug=True)
+\end{pycode}
+
+Some of this is going to be repeated in every Flask application.  Line 2, for example, tells Python that we're going to import something from the |flask| package that we installed.  Lines 10-11 tell Python to start the web server when we run this piece of code by itself.  The real interesting part is in lines 6-8, where we define a URL endpoint (the "/") and the code that is to run when someone accesses that URL.  If our server name is |flinkedin.com|, the "/" designates the root URL, or |http://flinkedin.com/|.
+
+Now, let's run the code.  This should start a web server on your personal computer, accessible for now only by you.  Note that we're using the copy of Python in the "venv" folder.  Mac/Linux users, replace |Scripts| with |bin|.
+
+\begin{minted}{shell}
+$ venv/Scripts/python app01.py
+ * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+ * Restarting with stat
+\end{minted}
+
+Without closing the shell, open up a web browser and visit the URL of your website.  You may type it as |http://127.0.0.1:5000| or as |http://localhost:5000|.  If all went well, the browser will show you the "Hello World" message.
+
+Now, let's expand on the application to create a more complete URL structure.  The API of our web service is going to support the URL patterns seen in Table \ref{tab:flinkedinapi}.
+
+\begin{table}
+\centering
+\caption{Flinkedin API Overview}\label{tab:flinkedinapi}
+\vspace{10pt}
+\begin{tabular}{ccp{5cm}}
+    \toprule[1.5pt]
+    \head{Method} & \head{URL endpoint} & \head{Action} \\
+    \midrule
+    |GET| & |/profiles| & Retrieve list of profiles.\\
+    \midrule
+    |GET| & |/profile/<id>| & Retrieve a specific profile.\\
+    \midrule
+    |POST| & |/profiles| & Create a new profile.\\
+    \midrule
+    |PUT| & |/profile/<id>| & Update an existing profile.\\
+    \midrule
+    |DELETE| & |/profile/<id>| & Delete a profile.\\
+    \midrule
+    |GET| & |/companies| & Retrieve list of companies.\\
+    \midrule
+    |GET| & |/companies/<id>/profiles| & Retrieve list of profiles of people who have worked for a specific company.\\
+    \bottomrule[1.5pt]
+\end{tabular}
+\end{table}
+
+For now, we'll simply create the URLs and some placeholder text at each.  The code for |app02.py| follows.
+
+\begin{pycode}
+#!venv/bin/python
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def index():
+    return( "Hello World! This is Flask." )
+    
+@app.route("/profiles", methods=['GET'])
+def profiles():
+    return( "List of profiles" )
+    
+@app.route("/profile/<string:id>", methods=['GET'])
+def get_profile(id):
+    return( "Profile " + id + " details" )
+    
+@app.route("/profiles", methods=['POST'])
+def post_profile():
+    return( "Creating new profile" )
+    
+@app.route("/profile/<string:id>", methods=['PUT'])
+def update_profile(id):
+    return( "Updating profile " + id )
+    
+@app.route("/profile/<string:id>", methods=['DELETE'])
+def delete_profile(id):
+    return( "Deleting profile " + id )
+    
+@app.route("/companies")
+def companies():
+    return( "List of companies" )
+    
+@app.route("/company/<string:id>/profiles")
+def company_profiles(id):
+    return( "List users who worked for company " + id )
+    
+if __name__ == '__main__':
+    app.run(debug=True)
+\end{pycode}
+
+In |app02.py|, we've specified several new URL endpoints.  In most cases we've indicated specific HTTP methods, so the same URL can be accessed with different methods and will trigger different parts of the code to run.  Also, we sometimes use angle brackets in the URL to indicate a variable that may be captured by the code.  For example in line 14, the URL is defined as |/profile/<string:id>|.  If someone were to access |http://localhost:5000/profile/123|, the "123" would be captured as a string variable (i.e. text) called "id".  In our code, the function |get_profile(id)| would use the variable to construct this phrase: "Profile 123 details".  Start the app and surf to that URL to see for yourself!  Try some of the other URLs, too.  (Note that with your web browser you can only send |GET| requests.)
+
+\subsection*{Now serving sample data}
+
+Now that we've got the URLs set up, let's create some actual data.  We haven't covered databases yet, so we'll just hard-code some sample data into the application.\footnote{That means changes to the data will not be retained.  Every time we re-start the program, it'll go back to the same initial data written into the code.  In real applications, you'll want to use a database to persist the data to disk as it changes.}  Add the following code to your program and save it as |app03.py|.
+
+\begin{minted}[firstnumber=6]{py}
+# sample data
+users = [
+    {
+        'id': '123',
+        'name': 'John McLane',
+        'jobs': [
+            {'employer':'NYPD',
+             'position':'Lieutenant',
+             'start':'1988'}
+        ]
+    },
+    {
+        'id': '456',
+        'name': 'James Edwards',
+        'jobs': [
+            {'employer':'NYPD',
+             'position':'Officer',
+             'start':'1990'},
+            {'employer':'M.I.B.',
+             'position':'Agent J',
+             'start':'1997'}
+        ]
+    }
+]
+\end{minted}
+
+You might have noticed that this data structure looks a lot like JSON!  Just like Javascript, Python uses square brackets |[ ]| to delimit a list of similar things, and curly braces |{ }| to define a "dictionary" of named, dissimilar things.  The things in a list can be accessed by number (e.g., |profiles[0]|) and the things in a dictionary can be accessed by name (e.g., |profiles[0]["id"]|).  Commas are used to separate items in lists and dictionaries.  Lists can be nested within dictionaries, and dictionaries can be nested within lists.  To access Agent J's first employer's name, for example, you'd use |profiles[1]["jobs"][0]["employer"]|.  It is very similar to Javascript in this regard---JSON only differs in that it makes some of the quotation marks optional.
+
+Now, let's set up our first two |GET| methods to serve real data.  We're going to need two additional functions that come with the Flask package: |jsonify| to print our data out as JSON, and |abort| to send 404 errors when necessary.  Change the second line of the program like so:
+
+\begin{minted}[firstnumber=2]{py}
+from flask import Flask, jsonify, abort
+\end{minted}
+
+The first generic method, to list all the profiles, uses the |jsonify| function to simply output the whole |users| data structure and give it the name "profiles":
+
+\begin{minted}[firstnumber=35]{py}
+@app.route("/profiles", methods=['GET'])
+def profiles():
+    return( jsonify({'profiles':users}) )
+\end{minted}
+
+The second method, to list a specific profile, has to use a little Python magic to find just the profile with the specified |id|.  If there is no profile with that |id|, the data will have length of zero, and the program will return a 404 "Not Found" error which your web browser understands.  If the profile exists, it will be returned as JSON.
+
+\begin{minted}[firstnumber=39]{py}
+@app.route("/profile/<string:id>", methods=['GET'])
+def get_profile(id):
+    user = [user for user in users if user['id'] == id]
+    if len(user) == 0:
+        abort(404)
+    return( jsonify({'profile':user[0]}) )
+\end{minted}
+
+Run the server (|venv/Scripts/python app03.py|) and point your web browser to a few URLs: |http://localhost:5000/profiles| to see all the users, |http://localhost:5000/profile/123| to see John McLane's profile, and |http://localhost:5000/profile/101| to make sure you get the expected 404 error.
+
+\subsection*{Methods to modify the data}
+
+Next we'll implement some of the methods that modify the data.  However, we won't be able to test these with a web browser, because it only sends |GET| requests in normal circumstances.  We'll use a utility called |curl| to send arbitrary HTTP requests without a browser.  It should already be installed on a Mac or Linux machine, and on Windows if you have installed Git and are using Git Bash as your shell (as I recommended in Chapter \ref{ch:atoms}).  Type |curl --version| at your command line and, if it is installed, it'll print the version number and then exit.
+
+\todo{Implement POST, PUT, DELETE methods for profiles}
+
+\todo{Create some "Challenges" for further study}
 
 \section*{Recommended Viewing}
 \begin{itemize}
@@ -565,7 +761,7 @@ In class, we used the tutorial by Miguel Grinberg at \url{http://blog.miguelgrin
     \item Fielding, R. (2000). Architectural Styles and the Design of Network-based Software Architectures. [Dissertation]. Chapter 5: Representational State Transfer (REST). http://www.ics.uci.edu/\~{}fielding/pubs/ dissertation/rest\_arch\_style.htm
     \item Rodriguez, A. (2008). RESTful Web Services: The basics.  IBM developerWorks. http://www.ibm.com/developerworks/library/ws-restful/ws-restful-pdf.pdf
     \item Hunter, T. (2014). Consumer-Centric API Design. [e-book]. \\https://github.com/tlhunter/consumer-centric-api-design
-    \item Grinberg, M. (2014).  Flask Web Development.  O'Reilly.
+    \item Grinberg, M. (2014). Designing a RESTful API with Python and Flask. \url{http://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask}
 \end{itemize}
 
 
