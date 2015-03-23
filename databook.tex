@@ -186,8 +186,7 @@ In the age of big data, a new role is emerging which takes a larger view of the 
 
 A data engineer therefore needs to know about how data is accessed and shared between users and applications over networks and in computer clusters.  He needs to know about the different types of data models and which tasks they are best suited for.  He needs to know about the new challenges of "big data" and the tools and techniques that are being developed to work with it.  And finally he needs to integrate a variety of data management solutions into a data "pipeline", automate it, and maintain it.  The remainder of this book surveys each of these knowledge areas.
 
-\section*{Tutorial: Reading and Writing Data with Python}
-\addcontentsline{toc}{section}{Tutorial: Reading and Writing Data with Python}
+\section{Tutorial: Reading and Writing Data with Python}
 
 In this tutorial, you will learn to use Python to write and read a data file.  Scripting languages like Python, Perl, R, and Ruby, are the "glue" that tie together the different parts of a big data pipeline.  You will be challenged to come up with a better way to structure the data with its metadata.
 
@@ -380,8 +379,7 @@ Also we could use Pig here to automate the transformations?}
 \section{New Approaches for Serialization}
 \todo{Talk about serialization techs like Avro.}
 
-\section*{Tutorial: Automating Data Transformation}
-\addcontentsline{toc}{section}{Tutorial: Automating Data Transformation}
+\section{Tutorial: Automating Data Transformation}
 
 \todo{Start with some data in a complex format like HTML (web scraping maybe?) and transform it to JSON or CSV using a Python script.  Show them regular expressions and maybe unix tools like sed + grep.  Finally, show how it's even easier in Pig.  (Is it?)} 
 
@@ -542,14 +540,13 @@ Your API should also be well-documented so that your users don't have to figure 
 For more on API design, see Recommended Reading below.
 
 
-\section*{Tutorial: A RESTful Web Service}
-\addcontentsline{toc}{section}{Tutorial: A RESTful Web Service}
+\section{Tutorial: A RESTful Web Service}
 
 In this tutorial, we're going to set up an HTTP web service.  A web service is like a website, except that it is intended to be used by machines---instead of stylish web pages with images, fonts, and colors, it will serve up data in JSON format at each URL we define.  There are many ways to code a web service (or website) and there are web "frameworks" for almost every popular programming language.\footnote{Rails (for the Ruby language), ASP.NET (for C\#), and Django (for Python) are some of the better known web frameworks.}  In this exercise, I'll introduce a minimalistic web framework for Python called Flask.
 
 \subsection*{Preparing a Python virtual environment}
 
-As we program this web service, we're going to install a number of "packages" or extensions to Python that are specific to this task, including the Flask framework.  Over the course of the semester you may find that you create a number of new tools that each depends on different packages.  Rather than install them all in the same place (the folder where Python is installed), it is common practice to create a \term{virtual environment} for each new application you develop.  The virtual environment will contain a \emph{copy} of Python, plus any extensions you need for your app, and store them in the same folder as the code.  Consequently, you can copy the folder to another computer or share it with someone else, and won't have to worry about whether they have the same version of Python or the same extensions -- the ones you need will be there already.
+As we program this web service, we're going to install a number of "packages" or extensions to Python that are specific to this task, including the Flask framework.  Over the course of the semester you will create a number of new Python programs, each depending on different packages.  Rather than install them all in the same place (i.e., the folder where Python is installed), it is common practice to create a \term{virtual environment} for each new application you develop.  The virtual environment will contain a \emph{copy} of Python, plus any extensions you need for your app, and store them in the same folder as the code.  Consequently, you can copy the folder to another computer or share it with someone else, and won't have to worry about whether they have the same version of Python or the same extensions -- the ones you need will be there already.
 
 To set up such an environment, you first need the |virtualenv| tool installed with Python.  To install extensions to Python, we use the |pip| package manager.  Try typing the following at the command line:
 
@@ -606,7 +603,7 @@ $ venv/Scripts/python app01.py
  * Restarting with stat
 \end{minted}
 
-Without closing the shell, open up a web browser and visit the URL of your website.  You may type it as |http://127.0.0.1:5000| or as |http://localhost:5000|.  If all went well, the browser will show you the "Hello World" message.
+Without closing the shell, open up a web browser and visit the website.  You may type |http://127.0.0.1:5000| or |http://localhost:5000|.  If all went well, the browser will show you the "Hello World" message.
 
 Now, let's expand on the application to create a more complete URL structure.  The API of our web service is going to support the URL patterns seen in Table \ref{tab:flinkedinapi}.
 
@@ -614,7 +611,7 @@ Now, let's expand on the application to create a more complete URL structure.  T
 \centering
 \caption{Flinkedin API Overview}\label{tab:flinkedinapi}
 \vspace{10pt}
-\begin{tabular}{ccp{5cm}}
+\begin{tabular}{llp{5cm}}
     \toprule[1.5pt]
     \head{Method} & \head{URL endpoint} & \head{Action} \\
     \midrule
@@ -679,7 +676,7 @@ if __name__ == '__main__':
     app.run(debug=True)
 \end{pycode}
 
-In |app02.py|, we've specified several new URL endpoints.  In most cases we've indicated specific HTTP methods, so the same URL can be accessed with different methods and will trigger different parts of the code to run.  Also, we sometimes use angle brackets in the URL to indicate a variable that may be captured by the code.  For example in line 14, the URL is defined as |/profile/<string:id>|.  If someone were to access |http://localhost:5000/profile/123|, the "123" would be captured as a string variable (i.e. text) called "id".  In our code, the function |get_profile(id)| would use the variable to construct this phrase: "Profile 123 details".  Start the app and surf to that URL to see for yourself!  Try some of the other URLs, too.  (Note that with your web browser you can only send |GET| requests.)
+In |app02.py|, we've specified several new URL endpoints.  In most cases we've indicated specific HTTP methods, so the same URL can be accessed with different methods and will trigger different parts of the code to run.  Also, we sometimes use angle brackets in the URL to indicate a variable that may be captured by the code.  For example in line 14, the URL is defined as |/profile/<string:id>|.  If someone were to access |http://localhost:5000/profile/123|, the "123" would be captured as a string variable (i.e. text) called |id|.  In our code, the function |get_profile(id)| would use the variable to construct this phrase: "Profile 123 details".  Start the app and surf to that URL to see for yourself!  Try some of the other URLs, too.  (Of course, with your web browser you can only send |GET| requests.)
 
 \subsection*{Now serving sample data}
 
@@ -712,7 +709,7 @@ users = [
 ]
 \end{minted}
 
-You might have noticed that this data structure looks a lot like JSON!  Just like Javascript, Python uses square brackets |[ ]| to delimit a list of similar things, and curly braces |{ }| to define a "dictionary" of named, dissimilar things.  The things in a list can be accessed by number (e.g., |profiles[0]|) and the things in a dictionary can be accessed by name (e.g., |profiles[0]["id"]|).  Commas are used to separate items in lists and dictionaries.  Lists can be nested within dictionaries, and dictionaries can be nested within lists.  To access Agent J's first employer's name, for example, you'd use |profiles[1]["jobs"][0]["employer"]|.  It is very similar to Javascript in this regard---JSON only differs in that it makes some of the quotation marks optional.
+You might have noticed that this data structure looks a lot like JSON!  Just like Javascript, Python uses square brackets |[ ]| to delimit a list of similar things, and curly braces |{ }| to define a "dictionary" of named, dissimilar things.  The items in a list can be accessed by number (e.g., |profiles[0]|) and the items in a dictionary can be accessed by name (e.g., |profiles[0]["id"]|).  Commas are used to separate items in lists and dictionaries.  Lists can be nested within dictionaries, and dictionaries can be nested within lists.  To access Agent J's first employer's name, for example, you'd use |profiles[1]["jobs"][0]["employer"]|.  It is very similar to Javascript in this regard.  Other programming languages have similar notations.
 
 Now, let's set up our first two |GET| methods to serve real data.  We're going to need two additional functions that come with the Flask package: |jsonify| to print our data out as JSON, and |abort| to send 404 errors when necessary.  Change the second line of the program like so:
 
@@ -745,7 +742,7 @@ Run the server (|venv/Scripts/python app03.py|) and point your web browser to a 
 
 Next we'll implement some of the methods that modify the data.  However, we won't be able to test these with a web browser, because it only sends |GET| requests in normal circumstances.  We'll use a utility called |curl| to send arbitrary HTTP requests without a browser.  It should already be installed on a Mac or Linux machine, and on Windows if you have installed Git and are using Git Bash as your shell (as I recommended in Chapter \ref{ch:atoms}).  Type |curl --version| at your command line and, if it is installed, it'll print the version number and then exit.
 
-Let's test it with a |GET| request.  Run the server (|venv/Scripts/python app03.py|) and, without stopping it, open a new terminal window.  In the second shell, type:
+Let's test it.  Run the server (|venv/Scripts/python app03.py|) and, without stopping it, open a new terminal window.  In the second shell, type:
 
 \mint{shell}|$ curl -i http://localhost:5000/|
 
@@ -776,7 +773,7 @@ We haven't written the code yet to do anything with that |POST|, so you'll just 
 from flask import Flask, jsonify, abort, request
 \end{minted}
 
-The following lines define a |post_profile()| function to accept the request and add the profile to our |users| data structure.  If there is no JSON message attached to the request, it sends the user a 400 error, meaning "bad request".  Otherwise it adds the received JSON to the list of profiles in memory.  There's no database behind our application, so if the server is restarted it will lose any data you've added.  A database to persist the data to disk will be introduced in Chapter \ref{ch:nosql}).
+The following lines define a |post_profile()| function to accept the request and add the profile to our |users| data structure.  If there is no JSON message attached to the request, it sends the user a 400 error, meaning "bad request".  Otherwise it adds the received JSON to the list of profiles in memory.  There's no database behind our application, so if the server is restarted it will lose any data you've added.  (A database to persist the data to disk will be introduced in Chapter \ref{ch:nosql}).
 
 \begin{minted}[firstnumber=46]{py}
 @app.route("/profiles", methods=['POST'])
@@ -812,7 +809,7 @@ def delete_profile(id):
     return( "Deleted profile " + id )
 \end{minted}
 
-To test it, use the |PUT| method to change the M.I.B. agent's name to "J":
+To test it, use the |PUT| method to change the M.I.B. agent's name to "J".  This is a bit awkward because we have to re-write the whole profile in JSON, instead of just the part that we wanted:
 
 \begin{minted}{shell}
 $ curl -i -X PUT -H "Content-Type: application/json" \
@@ -826,6 +823,8 @@ And since company policy, in fact, forbids keeping social media profiles, better
 
 \mint{shell}|$ curl -i -X DELETE http://localhost:5000/profile/456|
 
+Visit |http://localhost:5000/profiles| to confirm it has been deleted.
+
 \subsection*{Recap}
 
 In this tutorial we have used the Python web framework Flask to create an HTTP server that handles |GET| requests at a number of URL endpoints, and at least one type of |POST|, |PUT|, and |DELETE| request.  We created a virtual Python environment (essentially, a private copy of Python and its extensions) in the same folder using |virtualenv|, and used |pip| to install the |flask| package we needed for this environment.  Our data was hard-coded into our Python program (in a structure that looks rather similar to JSON) so that it is reset every time the server re-starts, with no persistence to disk.  We used |curl| to send HTTP requests to the server to test it.
@@ -836,6 +835,7 @@ In this tutorial we have used the Python web framework Flask to create an HTTP s
 \begin{enumerate}
     \item Modify the |GET /profiles| method so that it doesn't give all of the details for each profile, instead, just list the |id| and name of each profile.  Users of your API would then use |GET /profile/<id>| to drill down to the details.
     \item Consider what happens when you have a large number of profiles.  Will the response be too long?  Create a new URL endpoint like |GET /profiles/pages/<page_num>|, which returns a "page" of results containing a limited number of profiles.  For example, |/pages/1| might contain results 1-10 and |/pages/2| might contain results 11-20.
+    \item Create a new URL endpoint |POST /profile/<id>/jobs| so that someone can add a job to a specified profile without having to use |PUT| and re-type the entire profile.
     \item Our data structure is essentially a list of profiles, with employers listed for each profile; this makes it easy to find a profile but more complicated to search for a company.  Can you implement the |GET| method for the |/companies| URL, listing all the companies mentioned in our data?
     \item As a follow-up to the previous challenge, try to implement the unfinished |/company/<id>/profiles| URL endpoint, listing all the profiles that include a given company.
     \item In the tutorial for Chapter \ref{ch:atoms}, you learned how to use Python to write and read files on the hard disk.  Modify our application so that when the server is started, it loads the data from a file, and when |POST|, |PUT|, or |DELETE| methods are used, the data file is re-written.  Now your application can be called a database: it has a way of organizing data on disk and an API for users to create, read, update, and delete data.
@@ -844,8 +844,7 @@ In this tutorial we have used the Python web framework Flask to create an HTTP s
 
 \section*{Recommended Viewing}
 \begin{itemize}
-    \item \todo{Some video on web services and REST architecture or SOA?}
-    \item \todo{Some video on good API design?}
+    \item \todo{Can I find some videos on good API design?}
 \end{itemize}
 
 \section*{Recommended Reading}
@@ -882,8 +881,7 @@ Now we move up to the problems of scale in the internet era, which afflict singl
 
 
 
-\section*{Tutorial: Taking our Web Service to the Cloud}
-\addcontentsline{toc}{section}{Tutorial: Taking our Web Service to the Cloud}
+\section{Tutorial: Taking our Web Service to the Cloud}
 
 \todo{Set up cloud accounts, perhaps AWS or Azure.}
 
@@ -1072,8 +1070,7 @@ In addition to relational, dimensional, and aggregate-oriented data models, a fe
 
 
 
-\section*{Tutorial: A MongoDB Backend}
-\addcontentsline{toc}{section}{Tutorial: A MongoDB Backend}
+\section{Tutorial: A MongoDB Backend}
 
 \todo{Demonstrate MongoDB on the local computer.  It's a neat way to store, retrieve, and query data in JSON format.}
 
@@ -1121,8 +1118,7 @@ Focus on simple versus complex queries, and what sort of stuff a relational data
 \section{ACIDity}
 \todo{How relational databases rule in terms of data quality, by normalization, and integrity and consistency, via transactions.  Why you would want this for critical data like bank accounts.  Why it seems best for analytics (b/c arbitrary queries are possible).  Tease them that in the next chapter we'll explain about the need for a different model for data warehouses.}
 
-\section*{Tutorial: Powerful Queries with SQL}
-\addcontentsline{toc}{section}{Tutorial: Powerful Queries with SQL}
+\section{Tutorial: Powerful Queries with SQL}
 
 \todo{Demonstrate the limits of our MongoDB example by showing some queries that get difficult.}
 
@@ -1174,8 +1170,7 @@ Again bring up the physical components of computing and data storage systems.  T
 \todo{Following on the Agile idea---what's the business value of all this? What do users want?  Talk about fitting it to business processes and value chains.  Stress that we are creating self-service data apps.  Show the many ways they may consume data, including slice-and-dice, drill-down, and dashboards.}
 
 
-\section*{Tutorial: Designing a Data Mart}
-\addcontentsline{toc}{section}{Tutorial: Designing a Data Mart}
+\section{Tutorial: Designing a Data Mart}
 
 \todo{Show how to time a query.  Run a big query, add an index, run it again and show how much better it went.  Show how the query plan changed.}
 
@@ -1212,8 +1207,7 @@ What if our queries need to span billions of pieces of data?  For example, click
 
 \todo{Create the section headings and write the chapter.}
 
-\section*{Tutorial: Hadoop and Hive}
-\addcontentsline{toc}{section}{Tutorial: Hadoop and Hive}
+\section{Tutorial: Hadoop and Hive}
 
 \todo{Set up a Hadoop cluster and do a simple M/R job like word count.}
 
@@ -1248,8 +1242,7 @@ Setting up a data pipeline with data coming in via "streams" and being transform
 
 \todo{Create the section headings and write the chapter.}
 
-\section*{Tutorial: Integrating Live Data Streams}
-\addcontentsline{toc}{section}{Tutorial: Integrating Live Data Streams}
+\section{Tutorial: Integrating Live Data Streams}
 
 \todo{Set up a flow of data from a stream (perhaps Twitter) into storage, transforming and loading into an analytical database, into a dashboard.}
 
@@ -1278,8 +1271,7 @@ Talk about design considerations for self-service analytics systems, and what's 
 
 \todo{Create section headings and complete the chapter.}
 
-\section*{Tutorial: A Self-Service B.I. Portal}
-\addcontentsline{toc}{section}{Tutorial: A Self-Service B.I. Portal}
+\section{Tutorial: A Self-Service B.I. Portal}
 
 \todo{Complete our application by building a "portal" which should provide access to (a) the aggregate-oriented queries we enabled in Mongo, (b) data discovery tools in Looker or Tableau looking at our data mart, and (c) pre-made dashboards based on our streaming data.}
 
