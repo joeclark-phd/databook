@@ -883,13 +883,81 @@ Now we move up to the problems of scale in the internet era, which afflict singl
 
 \section{Tutorial: Taking our Web Service to the Cloud}
 
-\todo{Set up cloud accounts, perhaps AWS or Azure.}
+In this tutorial, we'll take the Flask application that we developed in Chapter \ref{ch:apis} and deploy it to the Amazon cloud, using a service called Elastic Beanstalk to manage the deployment.  Once complete, the API you developed on your personal computer will be accessible to everyone through the Internet.
 
-\todo{Create a computing node/instance/dyno/whatever to run our web service.  Store the file (to be transformed) in bulk storage (S3).  Show how to scale it out to multiple servers and then scale back to just one.} 
+\subsection*{What you can get for your magic beans}
 
-\todo{Probably a good time to introduce git/github for version control and automatic pushing to the cloud.  Emphasize that it's best to use the same tools at scale that you use on the localhost.}
+Amazon Web Services (AWS) is one of the leading providers of IaaS and PaaS cloud services.  \footnote{Its competitors include Microsoft Azure, Google Cloud Platform, and Rackspace.}  They offer services for storage, virtual machines for computing, and databases of various types.  Since AWS's "menu" of services is continually growing, you may want to take a moment to go look at their web site (\url{http://aws.amazon.com/}) to see the latest.  In particular, follow the link for "What is Cloud Computing?" and watch the three-minute video.  AWS has a "free tier" for most of its services, so although you will need a credit card to sign up for an account, you will likely not be charged for any of the things we'll be doing in this course.\footnote{Also, AWS tends to charge based only on what you use, so if you need some paid services for a class assignment, you are likely to pay a few cents per hour instead of a few dollars per month. Check their website for the latest pricing.}
 
-\todo{Show how to use built-in, and third-party, analytics features to monitor our "operations".}
+With an account, you can provision a web server with some storage and perhaps a database service manually, but there is an easier option.  Elastic Beanstalk is a service that manages applications in "containers".  You tell it what type of container you need (e.g. Python), and Elastic Beanstalk will provision the servers, prepare the environment for your app, and deploy your code to production.  After the initial setup, you only need to pay attention to the code, and let Amazon manage the rest.  More information is available, including a helpful video, at \url{http://aws.amazon.com/elasticbeanstalk/}.\footnote{Some other services like Elastic Beanstalk include Heroku and IBM's BlueMix.}
+
+\subsection*{Preparing the app for deployment}
+
+When we deploy our web application through Elastic Beanstalk, it's going to need two things: our code, and a file called |requirements.txt| that tells it which Python packages are required.  Do you remember that we set up a Python virtual environment for our app?  That makes our task here extremely easy, because we intalled into the virtual environment only the Python packages we needed for this specific app.  Other extensions we may have used in other apps are not included.
+
+To create the |requirements.txt| file, change into the directory where our code is stored.  In my case, that's a folder on my Desktop called "flinkedin":
+
+\mint{shell}|$ cd Desktop/flinkedin|
+
+And now, using the copy of |pip| in our virtual environment (|venv|), we automatically create the |requirements.txt| file in this one-liner.  Mac and Linux users, substitute "bin" for "Scripts":
+
+\mint{shell}|$ venv/Scripts/pip freeze > requirements.txt|
+
+The contents of |requirements.txt|, if you look at them in a text editor, should look something like the following, although your version numbers may be different:
+
+\begin{minted}{py}
+Flask==0.10.1
+Jinja2==2.7.3
+MarkupSafe==0.23
+Werkzeug==0.10.1
+itsdangerous==0.24
+\end{minted}
+
+Finally, we will make some changes to our code to make Amazon happy.  If you did the tutorial exactly as I did in Chapter \ref{ch:apis}, you have several versions of the program, the final one named |app04.py|.  Make a new copy of this file called |application.py| because that's what AWS is looking for.  (It is possible to configure AWS to accept a different program name, but easier to just go with the flow.)  In |application.py|, you must change the variable |app| to |application|.  Line 4 of the file becomes:
+
+\begin{minted}[firstnumber=4]{py}
+application = Flask(__name__)
+\end{minted}
+
+Additionally, change |@app.route(...)| to |@application.route(...)| everywhere it appears.
+
+Now, we need to make a zip file of our code.  Enter the "flinkedin" folder with the file system, select the files |application.py| and |requirements.txt| but \emph{not} the |venv| subfolder, and zip these files together.  (On Windows, right-click the selection and Send to : Compressed (zipped) folder.)  The zip file may have any name you prefer.
+
+\subsection*{Journey to the Amazon}
+
+Now, you'll need to go through the process of creating an account with Amazon Web Services at \url{http://aws.amazon.com}.  Once you've signed up, log in and visit the AWS Management Console, that is, the menu of all services offered by AWS.  You should see Elastic Beanstalk in the list under the "Deployment \& Management" subheading.  Click on it.
+
+\begin{enumerate}
+    \item In the navigation bar, click "Create New Application".  Give your application a unique name and then click "Next".
+
+    \item If given a choice between a "Web Server Environment" and a "Worker Environment", choose the former.  Click "Create web server".
+
+    \item On the next page, you'll be asked to choose the platform and type of environment.  The platform you want is Python and the application type is "Load balancing, auto scaling".
+
+    \item On the next page you'll be asked for a source for your application version; this means your code.  Choose "upload your own" and choose the zip file you created earlier, containing your code and |requirements.txt|.  Click "Next".
+
+    \item You will be asked for an Environment name.  Go with the defaults and click "Next".
+
+    \item On the "Additional Resources" page you'll be asked if you want a relational database (RDS DB) and some other options.  Leave the boxes unchecked and click "Next".
+
+    \item On the "Configuration Details" page, leave the default choices and click "Next".
+
+    \item On the "Environment Tags" page, click "Next".
+
+    \item Finally, you will be allowed to review your selections.  Unless something looks glaringly wrong, go ahead and click "Launch".
+\end{enumerate}
+
+You will now have the pleasure of watching Elastic Beanstalk set up the environment and deploy your code.  This may take several minutes.  Good time to get some coffee.  When the upload is complete, you should see a green checkbox indicating that the application is live.  Near the top of the screen you'll see the name of the application and environment, with its URL in parentheses.  Click the URL and you should see the "Hello World" message.
+
+[figures/working\_app\_dashboard.png]
+
+\subsection*{Managing your application}
+
+You have a number of tools at your disposal to manage your applicaiton from this dashboard.  If you experienced an error and your application isn't working, for example, check out the "Logs" tab and request the last 100 log entries from your application.  If you'd like to see how your servers are performing, click the "Monitoring" tab and see the information that's available to you.  You also have the option of changing the details of your configuration.  If you want to make some changes to the application and upload a new version, click the "Upload and Deploy" button.
+
+\todo{This chapter could also use a nice discussion of Git for version control, in conjunction with the Elastic Beanstalk command line interface.}
+
+\todo{This chapter may need some updating as we discover the common errors that students tend to make.}
 
 \section*{Recommended Viewing}
 \begin{itemize}
@@ -900,7 +968,7 @@ Now we move up to the problems of scale in the internet era, which afflict singl
 \begin{itemize}
     \item Manoochehri, M. (2014). Data Just Right: Introduction to Large-Scale Data \& Analytics. Addison-Wesley.
     \item Wilder, B. (2012). Cloud Architecture Patterns. O'Reilly.
-    \item \todo{Some good tutorial on AWS/Azure/Heroku or whatever we use for the cloud.}
+    \item \todo{Some good tutorial on AWS and Elastic Beanstalk would be nice.}
 \end{itemize}
 
 
