@@ -705,7 +705,7 @@ users = [
              'position':'Officer',
              'start':'1990'},
             {'employer':'M.I.B.',
-             'position':'Agent J',
+             'position':'Agent',
              'start':'1997'}
         ]
     }
@@ -745,9 +745,102 @@ Run the server (|venv/Scripts/python app03.py|) and point your web browser to a 
 
 Next we'll implement some of the methods that modify the data.  However, we won't be able to test these with a web browser, because it only sends |GET| requests in normal circumstances.  We'll use a utility called |curl| to send arbitrary HTTP requests without a browser.  It should already be installed on a Mac or Linux machine, and on Windows if you have installed Git and are using Git Bash as your shell (as I recommended in Chapter \ref{ch:atoms}).  Type |curl --version| at your command line and, if it is installed, it'll print the version number and then exit.
 
-\todo{Implement POST, PUT, DELETE methods for profiles}
+Let's test it with a |GET| request.  Run the server (|venv/Scripts/python app03.py|) and, without stopping it, open a new terminal window.  In the second shell, type:
 
-\todo{Create some "Challenges" for further study}
+\mint{shell}|$ curl -i http://localhost:5000/|
+
+What you'll see next is a message you should recognize as a successful HTTP response with an initial line, some headers, and the content of the message:
+
+\begin{minted}{shell}
+HTTP/1.0 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Length: 27
+Server: Werkzeug/0.10.1 Python/3.4.0
+Date: Sun, 22 Mar 2015 23:19:31 GMT
+
+Hello World! This is Flask.
+\end{minted}
+
+Here's how you would issue a |POST| request with |curl|.  It's pretty long for a one-liner, so I've used a backslash (|\|) to allow me to continue writing the command on a second line. (This is not needed on the second or third line because those are between quotes |''|.)  In this command you see |-X| preceding the HTTP method we want to use, |-H| indicating a header we want on the message, and |-d| preceding the body of the message we are sending, which in this case is a JSON object that we want to add to our list of profiles.  Finally, we type the URL.
+
+\begin{minted}{shell}
+$ curl -i -X POST -H "Content-Type: application/json" \
+> -d '{ "id":"101", "name": "Samwise Gamgee", "jobs":
+> [{"employer":"Bag End", "position":"Gardener",
+> "start": "1954"}]}' http://localhost:5000/profiles
+\end{minted}
+
+We haven't written the code yet to do anything with that |POST|, so you'll just get one of our placeholder text responses.  Let's fix that now.  Saving a copy of our applicaiton as |app04.py|, change the second line so that we're also importing |request|.
+
+\begin{minted}[firstnumber=2]{py}
+from flask import Flask, jsonify, abort, request
+\end{minted}
+
+The following lines define a |post_profile()| function to accept the request and add the profile to our |users| data structure.  If there is no JSON message attached to the request, it sends the user a 400 error, meaning "bad request".  Otherwise it adds the received JSON to the list of profiles in memory.  There's no database behind our application, so if the server is restarted it will lose any data you've added.  A database to persist the data to disk will be introduced in Chapter \ref{ch:nosql}).
+
+\begin{minted}[firstnumber=46]{py}
+@app.route("/profiles", methods=['POST'])
+def post_profile():
+    if not request.json:
+        abort(400) # 400 error = bad request
+    users.append(request.json)
+    return( jsonify({'profile':request.json}), 201 )
+\end{minted}
+
+The response message should have HTTP code 201, meaning "created", and show you the new profile.  You see, of course, that we never did any error checking to make sure that the profile had a properly formatted |id| number, or even a name.  This is just a quick demo and a real-world web application would do lots of validation to preserve data integrity and security.
+
+The |PUT| and |DELETE| methods combine aspects of what we've already developed.  Like the |GET| method for an individual profile, they search the data for an |id| that matches the URL.  Like the |POST| method, the |PUT| method checks for a JSON request message.  Both of these methods delete the existing data, and the |PUT| method then appends the new data, essentially replacing the old data with the new.  (Again, no real checking for data errors is done.  This is for the classroom only!)
+
+\begin{minted}[firstnumber=53]{py}
+@app.route("/profile/<string:id>", methods=['PUT'])
+def update_profile(id):
+    user = [user for user in users if user['id'] == id]
+    if len(user) == 0:
+        abort(404)
+    if not request.json:
+        abort(400)
+    users.remove(user[0])
+    users.append(request.json)
+    return( jsonify({'profile':request.json}) )
+    
+@app.route("/profile/<string:id>", methods=['DELETE'])
+def delete_profile(id):
+    user = [user for user in users if user['id'] == id]
+    if len(user) == 0:
+        abort(404)
+    users.remove(user[0])
+    return( "Deleted profile " + id )
+\end{minted}
+
+To test it, use the |PUT| method to change the M.I.B. agent's name to "J":
+
+\begin{minted}{shell}
+$ curl -i -X PUT -H "Content-Type: application/json" \
+> -d '{"id":"456","name":"J","jobs":[{"employer":"NYPD",
+> "position":"Officer","start":"1990"},{"employer":
+> "M.I.B","position":"Agent","start":"1997"}]}' \
+> http://localhost:5000/profile/456
+\end{minted}
+
+And since company policy, in fact, forbids keeping social media profiles, better just delete his profile entirely:
+
+\mint{shell}|$ curl -i -X DELETE http://localhost:5000/profile/456|
+
+\subsection*{Recap}
+
+In this tutorial we have used the Python web framework Flask to create an HTTP server that handles |GET| requests at a number of URL endpoints, and at least one type of |POST|, |PUT|, and |DELETE| request.  We created a virtual Python environment (essentially, a private copy of Python and its extensions) in the same folder using |virtualenv|, and used |pip| to install the |flask| package we needed for this environment.  Our data was hard-coded into our Python program (in a structure that looks rather similar to JSON) so that it is reset every time the server re-starts, with no persistence to disk.  We used |curl| to send HTTP requests to the server to test it.
+
+
+\subsection*{Challenges}
+
+\begin{enumerate}
+    \item Modify the |GET /profiles| method so that it doesn't give all of the details for each profile, instead, just list the |id| and name of each profile.  Users of your API would then use |GET /profile/<id>| to drill down to the details.
+    \item Consider what happens when you have a large number of profiles.  Will the response be too long?  Create a new URL endpoint like |GET /profiles/pages/<page_num>|, which returns a "page" of results containing a limited number of profiles.  For example, |/pages/1| might contain results 1-10 and |/pages/2| might contain results 11-20.
+    \item Our data structure is essentially a list of profiles, with employers listed for each profile; this makes it easy to find a profile but more complicated to search for a company.  Can you implement the |GET| method for the |/companies| URL, listing all the companies mentioned in our data?
+    \item As a follow-up to the previous challenge, try to implement the unfinished |/company/<id>/profiles| URL endpoint, listing all the profiles that include a given company.
+    \item In the tutorial for Chapter \ref{ch:atoms}, you learned how to use Python to write and read files on the hard disk.  Modify our application so that when the server is started, it loads the data from a file, and when |POST|, |PUT|, or |DELETE| methods are used, the data file is re-written.  Now your application can be called a database: it has a way of organizing data on disk and an API for users to create, read, update, and delete data.
+\end{enumerate}
+
 
 \section*{Recommended Viewing}
 \begin{itemize}
