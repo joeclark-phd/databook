@@ -1215,7 +1215,7 @@ db = client.get_default_database()
 From here on in, |pymongo|'s commands look a lot like the commands you can use at MongoDB's interactive shell.  In the script that follows, we simply create three Python data structures (remember how much they look like JSON!) and then insert them into a collection called "profiles" in the database.  One of the neat things about MongoDB is that you don't need to set up a "profiles" collection ahead of time.  It simply creates it the first time you insert data.  A copy of this file is included in the GitHub repository for this chapter, called |database_setup.py|.
 
 \begin{minted}[firstnumber=15]{py}
-john =  { "_id" : 123,
+john =  { "_id" : "123",
           "fname" : "John",
           "lname" : "McClane",
           "jobs" : [ 
@@ -1224,7 +1224,7 @@ john =  { "_id" : 123,
                      "start":1988}
                    ]
         }
-j =     { "_id" : 456,
+j =     { "_id" : "456",
           "fname" : "James",
           "lname" : "Edwards",
           "jobs" : [
@@ -1236,7 +1236,7 @@ j =     { "_id" : 456,
                      "start":1997}
                    ]
         }
-sam  =  { "_id" : 101,
+sam  =  { "_id" : "101",
           "fname" : "Samwise",
           "lname" : "Gamgee",
           "jobs" : [

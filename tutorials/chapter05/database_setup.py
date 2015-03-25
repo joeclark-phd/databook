@@ -12,7 +12,7 @@ db = client.get_default_database()
 # Here are two inital profiles for our database.
 # Note that this looks just like JSON except that we need
 # double-quotes ("") around the field names.
-john =  { "_id" : 123,
+john =  { "_id" : "123",
           "fname" : "John",
           "lname" : "McClane",
           "jobs" : [ 
@@ -21,7 +21,7 @@ john =  { "_id" : 123,
                      "start":1988}
                    ]
         }
-j =     { "_id" : 456,
+j =     { "_id" : "456",
           "fname" : "James",
           "lname" : "Edwards",
           "jobs" : [
@@ -33,7 +33,7 @@ j =     { "_id" : 456,
                      "start":1997}
                    ]
         }
-sam  =  { "_id" : 101,
+sam  =  { "_id" : "101",
           "fname" : "Samwise",
           "lname" : "Gamgee",
           "jobs" : [
