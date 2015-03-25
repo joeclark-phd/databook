@@ -840,6 +840,7 @@ In this tutorial we have used the Python web framework Flask to create an HTTP s
     \item As a follow-up to the previous challenge, try to implement the unfinished |/company/<id>/profiles| URL endpoint, listing all the profiles that include a given company.
     \item In the tutorial for Chapter \ref{ch:atoms}, you learned how to use Python to write and read files on the hard disk.  Modify our application so that when the server is started, it loads the data from a file, and when |POST|, |PUT|, or |DELETE| methods are used, the data file is re-written.  Now your application can be called a database: it has a way of organizing data on disk and an API for users to create, read, update, and delete data.
     \item In addition to URL endpoints that return JSON, you might want to make a few human-readable web pages.  Flask can serve up HTML pages with or without dynamic elements.  If you know a little about web development, create a home page for your app.  Save it as "index.html" in a folder called "templates" within the application folder.  Add |render_template| to the |import| line, and change the |return()| line of the homepage route to: |return( render_template("index.html") )|.  Now instead of a "Hello World" message your users will see an HTML page at the root URL.
+    \item See if you can learn how to make a web page with a data entry form, to automatically send |POST| requests via the browser.  Incorporate the form into your application.
 \end{enumerate}
 
 
@@ -865,7 +866,7 @@ In this tutorial we have used the Python web framework Flask to create an HTTP s
 
 
 
-\chapter{Data at Internet Scale}
+\chapter{Data at Internet Scale}\label{ch:cloud}
 
 \section*{Preview}
 
@@ -959,6 +960,10 @@ You have a number of tools at your disposal to manage your applicaiton from this
 \todo{This chapter could also use a nice discussion of Git for version control, in conjunction with the Elastic Beanstalk command line interface.}
 
 \todo{This chapter may need some updating as we discover the common errors that students tend to make.}
+
+\subsection*{Challenges}
+
+\todo{Introduce some challenges}
 
 \section*{Recommended Viewing}
 \begin{itemize}
@@ -1141,13 +1146,200 @@ In addition to relational, dimensional, and aggregate-oriented data models, a fe
 
 \section{Tutorial: A MongoDB Backend}
 
-\todo{Demonstrate MongoDB on the local computer.  It's a neat way to store, retrieve, and query data in JSON format.}
+\todo{Demonstrate MongoDB on the local computer.  It's a neat way to store, retrieve, and query data in JSON format.  Download and install MongoDB from the website (mongodb.org).}
 
-\todo{Hook our Flask app (still local) to the Mongo database. Use the URL structure to generate queries. How do we get this into version control?}
+For now, students, you might try this in-browser demo of MongoDB as a warm-up: \url{http://try.mongodb.org/}
 
-\todo{Add a new page to the app for "insert" queries.  Now we have a database-driven web app.  Maybe throw a little Bootstrap on top of it.}
+\subsection*{Integrating MongoDB into a web service}
 
-\todo{Move our project up to the cloud.  Use a script to load a boatload of data into our cloud-scale Mongo database.  Show how to shard it.}
+Now that you've seen a bit of what it's like to work with a database directly, via its interactive command line interface, let's integrate it into your application.  It is more common to have the database serve as the back end of a multi-tier application than to simply use a database on its own.
+
+The best way I've found to get a MongoDB database running in the cloud is to use Mongolab (\url{http://mongolab.com}).  
+
+Register for an account. You will have to verify your e-mail address. After signing in you will see that you have created an "account" and a "user".  The account could be for a company or project and there could be multiple users in one account.
+
+Click "Create New" to create a new database.  Select a single-node deployment on Amazon Web Services of the "Sandbox" plan, which is free of charge.  At the time of writing, this was only available in Amazon's US East region.  It will give you 0.5GB of storage on a shared node---enough to experiment with but not enough power for a commercial application.  Give the database a name; mine is called |cis355sandbox|.  Click "Create new MongoDB deployment" when you're ready.
+
+Click on the database name, and you'll get some information including the instructions to connect to the database.  The first thing you'll need to do is to create a database user.\footnote{Your Mongolab user account gives you access to the account, including the right to create and delete databases; the database user account gives you rights within the database.  Neither of these is the same as your Amazon Web Services account.  I recommend using a password manager to keep track of all these details.}  If you successfully installed the MongoDB client (|mongo|) on your personal computer, and created a database user, you can connect using the command line:
+
+\mint{shell}|$ mongo <connection string> -u <dbuser> -p <dbpassword>|
+
+If you got into MongoDB, great!  Try a couple of commands to make sure:
+
+
+\begin{minted}{shell}
+> db.testcollection.insert({ "go" : "sun devils" })
+WriteResult({ "nInserted" : 1 })
+> db.testcollection.find()
+{ "_id" : ObjectID("..."), "go" : "sun devils" }
+> exit
+\end{minted}
+
+By leveraging Mongolab's cloud service, we have avoided the painstaking work of installing and configuring MongoDB on our own personal computers.  We can continue to use this free server for our remaining exercises.
+
+\subsection*{Setting up a database backend}
+
+Recall that our app "flinkedin" used hard-coded data so that its "database" (if it can be called that) resets every time the server is restarted.  We'll now adapt the code so that the user profile data is stored in a MongoDB database for persistence over time and across versions.
+
+You might want to make a copy of the |application.py| file from "flinkedin" that you developed doing the tutorials from Chapter \ref{ch:apis} and Chapter \ref{ch:cloud}.  Make a new folder for the copy, and don't bother copying the virtual environment or other files, because we're going to be changing some things.
+
+The first thing we're going to do is create a new virtual environment, because this applicaiton will use another Python package that wasn't needed in the previous tutorial.  The appropriately-named package |pymongo| enables Python to connect to MongoDB to send and receive data. So, navigating into the top-level folder for this application, first create a virtual environment:
+
+\mint{shell}|$ virtualenv venv|
+
+And then use |pip| to install Flask and |pymongo| in the virtual environment:
+
+\mint{shell}|$ venv/Scripts/pip install flask pymongo|
+
+Since we're going to upload this to Amazon, we'll need to update |requirements.txt| with this new dependency.  You can do so with this one-liner:
+
+\mint{shell}|$ venv/Scripts/pip freeze > requirements.txt|
+
+Now we'll create a script to set up our database with some initial data.  This script will only run once, so it's not going to be part of the web application we upload to Amazon, but it's a good way to demonstrate how Python connects to MongoDB.
+
+The first thing we do is import the function |MongoClient| from the |pymongo| package (line 1 of the example below).  In line 7, we create a connection called |client| by calling the |MongoClient| function with the URL of the database.  Remember that your database connection details are different from mine and can be found on the Mongolab website.  Remembering that a MongoDB server can contain multiple databases (really just named groups of collections), line 10 of the example creates the |db| variable as a direct link to the default database on our MongoDB server.
+
+\begin{minted}{py}
+from pymongo import MongoClient
+
+# (USE YOUR CONNECTION DETAILS FROM MONGOLAB)
+MONGO_URL = 'mongodb://<uname>:<pass>@<database URL>'
+
+# connect to the mongoDB server
+client = MongoClient(MONGO_URL) 
+
+# connect to the default database 
+db = client.get_default_database()
+\end{minted}
+
+From here on in, |pymongo|'s commands look a lot like the commands you can use at MongoDB's interactive shell.  In the script that follows, we simply create three Python data structures (remember how much they look like JSON!) and then insert them into a collection called "profiles" in the database.  One of the neat things about MongoDB is that you don't need to set up a "profiles" collection ahead of time.  It simply creates it the first time you insert data.  A copy of this file is included in the GitHub repository for this chapter, called |database_setup.py|.
+
+\begin{minted}[firstnumber=15]{py}
+john =  { "_id" : 123,
+          "fname" : "John",
+          "lname" : "McClane",
+          "jobs" : [ 
+                    {"employer":"NYPD",
+                     "position":"Lieutenant",
+                     "start":1988}
+                   ]
+        }
+j =     { "_id" : 456,
+          "fname" : "James",
+          "lname" : "Edwards",
+          "jobs" : [
+                    {"employer":"NYPD",
+                     "position":"Officer",
+                     "start":1990},
+                    {"employer":"M.I.B.",
+                     "position":"Agent",
+                     "start":1997}
+                   ]
+        }
+sam  =  { "_id" : 101,
+          "fname" : "Samwise",
+          "lname" : "Gamgee",
+          "jobs" : [
+                    {"employer":"Bag End",
+                     "position":"Gardener",
+                     "start":1954},
+                    {"employer":"City of Hobbiton",
+                     "position":"Mayor",
+                     "start":1955}
+                   ]
+        }
+        
+# and now we use our database connection to store them
+# in a new collection (think table), we'll call "profiles"
+db.profiles.insert(john)
+db.profiles.insert(j)
+db.profiles.insert(sam)
+\end{minted}
+
+What you might want to do now is connect to MongoDB via the shell (as before) and check that the data was inserted:
+
+\mint{shell}|> db.profiles.find()|
+
+\subsection*{Linking API methods to database operations}
+
+The first several lines of |application.py| need to change.  We will be importing |pymongo| and a method from |bson| (which was part of the |pymongo| install; you don't need to install it separately).  We will also use the same database connection code that we just used in the one-time database setup script described above.  Finally, we deleted the hard-coded profile data.  Here's the code that begins the new |application.py|.
+
+\begin{minted}{py}
+#!venv/bin/python
+from flask import Flask, abort, request
+from pymongo import MongoClient
+from bson import json_util
+
+application = Flask(__name__)
+
+# (USE YOUR CONNECTION DETAILS FROM MONGOLAB)
+MONGO_URL = 'mongodb://<uname>:<pass>@<database URL>'
+
+# connect to the mongoDB server
+client = MongoClient(MONGO_URL) 
+
+# connect to the default database 
+db = client.get_default_database()
+\end{minted}
+
+Now let's revisit the first URL endpoint, |/profiles|.  Previously we used a function called |jsonify| to simply print out the profile data in the response.  We replace it with two new lines of code.  The first runs a simple MongoDB query, |db.profiles.find()|, and the second line "dumps" that code as JSON that can be viewed on the screen (much like what |jsonify| did):
+
+\begin{minted}[firstnumber=23]{py}
+@application.route("/profiles", methods=['GET'])
+def profiles():
+    # run a query -- find all profiles
+    data = db.profiles.find()
+    # turn the data into human-readable JSON
+    return( json_util.dumps({"profiles":data})  )
+\end{minted}
+
+The second |GET| endpoint becomes even simpler.  Instead of having to use tricky Python code to find the profile matching a given ID number, we simply use the Python equivalent of MongoDB's |findOne()| method to query for the right profile, then return it as JSON:
+
+\begin{minted}[firstnumber=30]{py}
+@application.route("/profile/<string:id>", methods=['GET'])
+def get_profile(id):
+    data = db.profiles.find_one({"_id":id})
+    return( json_util.dumps(data) )
+\end{minted}
+
+For the |POST| endpoint, we'll do something clever.  Here, in line 29, we capture the result of a MongoDB |insert()| command in a variable called |response|.  This will be the message that Mongo sends on a successful (hopefully) operation, such as "|WriteResult({ "nInserted" : 1 })|".  We'll then send that right back to the user:
+
+\begin{minted}[firstnumber=35]{py}
+@application.route("/profiles", methods=['POST'])
+def post_profile():
+    if not request.json:
+        abort(400) # 400 error = bad request
+    response = db.profiles.insert(request.json)
+    return( response )
+\end{minted}
+
+In the |PUT| endpoint, which updates a profile by replacing it, we do something similar, this time with Mongo's |update()| command.
+
+\begin{minted}[firstnumber=42]{py}
+@application.route("/profile/<string:id>", methods=['PUT'])
+def update_profile(id):
+    if not request.json:
+        abort(400)
+    response = db.profiles.update({"_id":id},request.json)
+    return( response )
+\end{minted}
+
+Finally, the |DELETE| endpoint uses MongoDB's |delete()| method:
+
+\begin{minted}[firstnumber=49]{py}
+@application.route("/profile/<string:id>", methods=['DELETE'])
+def delete_profile(id):
+    response = db.profiles.remove({"_id":id})
+    return( response )
+\end{minted}
+
+With these changes, the application developed in the previous tutorials is completely converted to using a database back-end.  Make a new ZIP file containing |application.py| and |requirements.txt| and you may upload it to your Elastic Beanstalk application.  It should work right away; and now even when you restart the server, the changes you make to the profiles should persist.
+
+You can see for yourself how a document store like MongoDB (one of the types of aggregate-oriented databases) makes it extremely simple to store and retrieve JSON-like data documents.  As we explore relational databases in the next chapter, we'll see that they enable much more powerful and complex queries, but at the cost of splitting up your data into numerous tables that must be "joined" in order to construct a result.  When it comes to web applications with natural aggregates---like social media profiles, or news articles---MongoDB is much easier to use and can potentially perform much more quickly.
+
+\subsection*{Challenges}
+
+\todo{Introduce some challenges}
 
 \section*{Recommended Viewing}
 \begin{itemize}
