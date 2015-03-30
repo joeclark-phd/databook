@@ -1368,10 +1368,69 @@ You can see for yourself how a document store like MongoDB (one of the types of 
 
 \section*{Preview}
 
-Focus on simple versus complex queries, and what sort of stuff a relational database enables.  Describe the types of queries that aren't easy with document stores.  Talk about how to model a database with an ER diagram, create it with SQL, and query it with SQL.
+Relational databases have been the main workhorses of data management since the late 1970s and their capabilities are still advancing today.  Normalized relational data models simultaneously protect data integrity and enable efficient, complex, ad hoc queries.  In this chapter I briefly introduce entity-relationship modeling and the SQL query language.  The reader may want to supplement it with a deeper study of SQL, for example by taking CIS 365 at ASU.
 
-\section{A Well-formed Relation}
-\todo{Talk about E. F. Codd's paper, relational algebra, and the elegance of the relational data model.  Talk about some of the tricky modeling cases: many-to-many, and so on.  A bit about normalization.  Relational databases enforce a schema, so up-front thought is important, and refactoring must be done carefully.  Perhaps this is a drawback or perhaps it is an advantage.}
+
+\section{Defining the relational model}
+The dominant data modeling paradigm before the late 1970s was hierarchical.  Hierarchical models structured the data as a "tree" of parent-child relationships.  Like the aggregate-oriented databases of today, they made it relatively easy to access the data in a predetermined aggregate (for example, the employees in a particular department) but difficult to access data that cuts across aggregates (such as all employees with a given title).  Undesirable redundancy and inconsistency could occur when the real-world concepts couldn't be shoehorned into a hierarchical structure.
+
+\todo{Hierarchical data model diagram of employees in departments}
+
+A researcher at IBM named E. F. Codd proposed a new model in a 1970 paper called "A Relational Model of Data for Large Shared Data Banks".  In his model, all data is represented as \term{tuples} grouped into \term{relations}.  Tuples, in mathematics, are ordered sets of elements\footnote{The word "tuple" is generalized from the words single, double, triple, quadruple, ..., \emph{n}-tuple.}.  In relational databases, the elements are called \term{attributes} and the attributes have names.  For the tuple |("CIS 355","Clark","Spring 2015","4:30pm M/W")|, the attribute names are course name, professor, semester, and class time.  If you put together a large number of tuples with the same attribute names, the result would be a relation containing data on the university's course schedule.  
+
+A relation, then, is something like a data "table", with attribute names serving as column headers, and a tuple is very much like a "row".  Indeed, when we talk about relational databases, we generally talk about tables, rows, and columns rather than relations, tuples, and attributes.
+
+\todo{Add a diagram like wikipedia's, showing the terms relation, tuple, and attribute superimposed on a data table}
+
+
+\section{A well-formed relation}
+
+To gain the benefits of relational databases, not just any old table will do.  Consider a large table like the one in the figure below:
+
+\todo{Add a sample non-normalized table}
+
+In the figure, each row contains data about a number of \term{entities} (the person, the department, the project, the job) in the business domain.  Some of the rows are not true tuples because they try to stuff more than one value into an attribute.  And many pieces of information (such as a project manager's phone number) appear more than once.  These qualities of the data table create the potential for data problems called \term{anomalies}.  To combat anomalies and ensure data quality, a number of best practices for database design have evolved.
+
+Relational database design includes at least the following steps:
+
+\begin{enumerate}
+    \item Conceptual data modeling
+    \item Logical database design and normalization
+    \item Physical implementation and optimization
+\end{enumerate}
+
+\subsection{Conceptual data modeling}
+
+In \term{conceptual data modeling}, the analyst begins to identify the meaningful concepts of the problem domain and document the business rules that govern it.  This begins by identifying the important \term{entity types} in the domain, that is, the "nouns" that matter in understanding the problem.  For an e-commerce system these might be customers, products, orders, and shopping carts.  For a human resources system they might be employees, departments, skills, and positions.  
+
+In any case, this stage requires that the analyst clarify the definitions of these terms.  A term like "customer" can have many meanings: to the marketing department it may mean any shopper; to the customer service department it may mean someone who has purchased in the past; to the webmaster it may mean someone who has registered with the website, and so on.  Conceptual data modeling requires talking to a lot of people and may involve diplomacy; as you can see, a lot of work needs to be done before any database software development occurs.
+
+\todo{Insert a conceptual E-R diagram here, with a key to the crows-feet notation}
+
+After identifying the entity types, the conceptual data modeler determines the types of \term{relationships} that may link instances of each entity type.  For example, a product may be part of a product category.  But may the same product be part of two or more categories?  This is a rule of the business which may not be written down, or even known to the business, until the data modeler asks.  Relationship types are typically described as one-to-one, one-to-many, or many-to-many.  They may be mandatory (e.g. every order \emph{must} have a customer) or optional (e.g. a category may contain zero or more products).  A relationship may unite two entity types, e.g. shopping carts and products, but unary relationships in which relationships join entities of the same type are possible.  For example, a "reports to" relationship may unite an employee with a manager, both of whom are instances of the Employee entity type.
+
+The results of conceptual modeling are one or more \term{entity-relationship diagrams} (also known as E-R diagrams or ERDs) and supporting documentation that details the business rules, such as definitions of terms, that describe the problem domain.  The E-R diagram is an invaluable guide to implementing the data model in software, as there is a close correspondence between entity types and the data tables one will need to implement.
+
+\subsection{Logical database design}
+
+\term{Logical database design} is the term given to the phase in which entity types and relationships are mapped to database tables, attributes are defined and implemented as column definitions, and other business rules are translated into integrity constraints.
+
+\todo{ This means lots of tables. }
+
+\todo{ Attributes must be defined.  Constraints include NOT NULL and CHECK(condition).  Unique primary keys needed to serve as identifiers of rows. A major feature (which may be good or bad) of relational databases is that attributes/columns must be defined up front and are difficult to change.}
+
+\todo{ Relationships are implemented by means of foreign keys.  Many-to-many relationships require the creation of associate tables.  Foreign keys have implications for side-effects of deletion. }
+
+\todo{ This brings us to third normal form.  How does normalization prevent anomalies?  A few examples. }
+
+\subsection{Physical implementation}
+
+In logical design, we describe the tables that the database will include, and may do so by writing code, but still at a high level of abstraction.  Physical implementation of the database requires thinking about the types of software and hardware that will be used, the number of disks or computers in the cluster, and how to partition, replicate, index, pre-process or otherwise optimize the performance of our database.  This is a specialized knowledge area distinct from database design at the conceptual or logical level, but there are some areas of overlap.  For example, a DBA involved in optimizing query performance may suggest changes to the attributes of a table---such as changing a decimal to an integer data type, or replacing a natural primary key with a machine-generated unique identifier.
+
+\todo{Talk about the implications of indexes, and point them to CIS 365 to learn more about physical database optimization.}
+
+
+
 
 \section{SQL}
 \todo{All about the SQL language: DDL, DML, DCL.  SQL describes what you want, it's descriptive rather than imperative.  JOINS are the magic that allows very complex queries to be written very simply.  Subqueries and other tools are also powerful.}
@@ -1416,7 +1475,8 @@ Focus on simple versus complex queries, and what sort of stuff a relational data
 
 \section*{Preview}
 
-Again bring up the physical components of computing and data storage systems.  Talk about performance issues with relational databases, why we normalize, and why we denormalize.  Discuss indexes.  Show how transactional systems are different from analytical systems at scale.  This leads into the design of analytical databases---dimensional modeling---based on their use cases.  Star schemas, three types of fact tables, grain, slowly changing dimensions.
+Normalized relational databases perform well in the daily operations of a business which involve numerous, frequent |INSERT|s, |UPDATE|s, and |DELETE|s each affecting a few rows of data at a time.  The trade-off of normalization, however, is that they can perform poorly at |SELECT| queries that join numerous tables and pull in thousands or millions of rows---just the types of queries that are used in analytics and business intelligence.  Various types of analytical databases, including dimensional data warehouses, have been developed to make the opposite trade-off and enable large scale decision support systems.  This chapter introduces dimensional modeling and a few of the variations on star schemas.
+
 
 \section{OLTP and OLAP}
 \todo{Talk about how JOINs work internally---Cartesian products.  Talk about table scans vs indexes and seeks.  Day-to-day operations have very different workloads than analyses in terms of queries and joins, rows and columns.  Remind them about transactions, and why it wouldn't be good to run huge queries that lock up your operational systems.  Why do we need separate data warehouses.}
